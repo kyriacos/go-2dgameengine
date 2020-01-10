@@ -21,6 +21,11 @@ var (
 	running = false
 
 	showFPS = flag.Bool("showFPS", false, "Show current FPS and on exit display the average FPS.")
+
+	projx    = 0.0
+	projy    = 0.0
+	projvelx = 20.0
+	projvely = 20.0
 )
 
 func initSDL() (err error) {
@@ -77,11 +82,20 @@ func setup() {
 	Renderer.Clear()
 }
 
-func update() {
-
+func update(deltaTime float64) {
+	projx += projvelx * deltaTime
+	projy += projvely * deltaTime
 }
 
 func render() {
+	Renderer.SetDrawColor(21, 21, 21, 255)
+	Renderer.Clear()
+
+	rect := &sdl.Rect{X: int32(projx), Y: int32(projy), W: 10, H: 10}
+
+	Renderer.SetDrawColor(255, 255, 255, 255)
+	Renderer.FillRect(rect)
+
 	Renderer.Present()
 }
 
@@ -100,33 +114,33 @@ func main() {
 	}
 
 	var (
-		counter           = 0
-		elapsedMS, sumFPS float64
+		counter                      = 0
+		sumFPS, deltaTime            float64
+		ticksCurrent, ticksLastFrame uint32
 	)
 
 	setup()
 
 	running = true
 	for running {
-		start := sdl.GetPerformanceCounter()
+		ticksCurrent = sdl.GetTicks()
+
+		deltaTime = float64(ticksCurrent-ticksLastFrame) / 1000.0
 
 		processInput()
-		update()
+		update(deltaTime)
 		render()
 
-		end := sdl.GetPerformanceCounter()
+		ticksLastFrame = sdl.GetTicks()
 
-		elapsedMS = float64(end-start) / float64(sdl.GetPerformanceFrequency()*1000.0)
-
-		sdl.Delay(uint32(math.Floor(FrameTimeLength - elapsedMS))) // pause until we reach the target frames
+		sdl.Delay(uint32(math.Floor(FrameTargetTime - deltaTime))) // pause until we reach the target frames
 
 		if *showFPS {
-			elapsed := float64(end-start) / float64(sdl.GetPerformanceFrequency())
 			counter++
-			currentFPS := 1.0 / elapsed
+			currentFPS := 1.0 / deltaTime
 			sumFPS += currentFPS
 
-			fmt.Printf("FPS: %f\n", 1.0/elapsed)
+			fmt.Printf("FPS: %f\n", currentFPS)
 		}
 	}
 
