@@ -22,10 +22,8 @@ var (
 
 	showFPS = flag.Bool("showFPS", false, "Show current FPS and on exit display the average FPS.")
 
-	projx    = 0.0
-	projy    = 0.0
-	projvelx = 20.0
-	projvely = 20.0
+	projPos = &Vector2{0.0, 0.0}
+	projVel = &Vector2{20.0, 20.0}
 )
 
 func initSDL() (err error) {
@@ -83,15 +81,14 @@ func setup() {
 }
 
 func update(deltaTime float64) {
-	projx += projvelx * deltaTime
-	projy += projvely * deltaTime
+	projPos = projPos.Add(projVel.Mul(float32(deltaTime)))
 }
 
 func render() {
 	Renderer.SetDrawColor(21, 21, 21, 255)
 	Renderer.Clear()
 
-	rect := &sdl.Rect{X: int32(projx), Y: int32(projy), W: 10, H: 10}
+	rect := &sdl.Rect{X: int32(projPos.X), Y: int32(projPos.Y), W: 10, H: 10}
 
 	Renderer.SetDrawColor(255, 255, 255, 255)
 	Renderer.FillRect(rect)
