@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math"
 	"os"
 
 	"github.com/veandco/go-sdl2/sdl"
@@ -18,6 +19,8 @@ var (
 	WindowHeight = 600
 
 	running = false
+
+	showFPS = flag.Bool("showFPS", false, "Show current FPS and on exit display the average FPS.")
 )
 
 func initSDL() (err error) {
@@ -96,12 +99,43 @@ func main() {
 		os.Exit(1)
 	}
 
+	var (
+		counter           = 0
+		elapsedMS, sumFPS float64
+	)
+
 	setup()
 
 	running = true
 	for running {
+		start := sdl.GetPerformanceCounter()
+
 		processInput()
 		update()
 		render()
+
+		end := sdl.GetPerformanceCounter()
+
+		elapsedMS = float64(end-start) / float64(sdl.GetPerformanceFrequency()*1000.0)
+
+		sdl.Delay(uint32(math.Floor(FrameTimeLength - elapsedMS))) // pause until we reach the target frames
+
+		if *showFPS {
+			elapsed := float64(end-start) / float64(sdl.GetPerformanceFrequency())
+			counter++
+			currentFPS := 1.0 / elapsed
+			sumFPS += currentFPS
+
+			fmt.Printf("FPS: %f\n", 1.0/elapsed)
+		}
 	}
+
+	destroy()
+
+	if *showFPS {
+		fmt.Printf("Average FPS: %f\n", sumFPS/float64(counter))
+	}
+
+	os.Exit(0)
+
 }
