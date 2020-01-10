@@ -124,6 +124,8 @@ func main() {
 
 		deltaTime = float64(ticksCurrent-ticksLastFrame) / 1000.0
 
+		deltaTime = math.Min(deltaTime, 0.05) // clamp deltatime to max 0.05
+
 		processInput()
 		update(deltaTime)
 		render()
