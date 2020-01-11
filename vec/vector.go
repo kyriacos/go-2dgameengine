@@ -1,6 +1,4 @@
-package main
-
-// type Vec2 [2]float32
+package vec
 
 type Vector2 struct {
 	X, Y float32

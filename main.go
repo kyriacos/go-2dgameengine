@@ -7,11 +7,14 @@ import (
 	"os"
 
 	"github.com/veandco/go-sdl2/sdl"
+
+	"github.com/kyriacos/2dgameengine/ecs"
+	"github.com/kyriacos/2dgameengine/global"
+	"github.com/kyriacos/2dgameengine/systems"
 )
 
 var (
-	Window   *sdl.Window
-	Renderer *sdl.Renderer
+	World *ecs.World
 
 	// WindowWidth  = flag.Int("width", 640, "the window width")
 	// WindowHeight = flag.Int("height", 480, "the window height")
@@ -21,9 +24,6 @@ var (
 	running = false
 
 	showFPS = flag.Bool("showFPS", false, "Show current FPS and on exit display the average FPS.")
-
-	projPos = &Vector2{0.0, 0.0}
-	projVel = &Vector2{20.0, 20.0}
 )
 
 func initSDL() (err error) {
@@ -32,7 +32,7 @@ func initSDL() (err error) {
 		return err
 	}
 
-	Window, err = sdl.CreateWindow(
+	global.Window, err = sdl.CreateWindow(
 		"",
 		sdl.WINDOWPOS_CENTERED,
 		sdl.WINDOWPOS_CENTERED,
@@ -44,7 +44,7 @@ func initSDL() (err error) {
 		return err
 	}
 
-	Renderer, err = sdl.CreateRenderer(Window, -1, sdl.RENDERER_ACCELERATED) // -1 to use the default graphics driver
+	global.Renderer, err = sdl.CreateRenderer(global.Window, -1, sdl.RENDERER_ACCELERATED) // -1 to use the default graphics driver
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating SDL renderer: %s\n", err)
 		return err
@@ -76,30 +76,52 @@ func processInput() {
 }
 
 func setup() {
-	Renderer.SetDrawColor(0, 0, 0, 255)
-	Renderer.Clear()
+	global.Renderer.SetDrawColor(0, 0, 0, 255)
+	global.Renderer.Clear()
+
+	// Game - Load Level
+
+	// Create Entity Manager
+	em := &EntityManager{
+		entities: make(map[uint64]ecs.IEntity),
+	}
+
+	// Create asset manager
+	// am := &AssetManager{
+	// 	entityManager: em,
+	// 	textures:      make(map[string]*sdl.Texture),
+	// }
+
+	// create entities and components
+	pe := NewProjectileEntity()
+	// Add to entitymanager
+	em.AddEntity(pe)
+
+	// create world
+	World = &ecs.World{}
+	// add systems
+	renderSystem := &systems.RenderSystem{}
+	renderSystem.Add(pe.Entity, pe.RenderComponent, pe.TransformComponent)
+	moveableSystem := &systems.MoveableSystem{}
+	moveableSystem.Add(pe.Entity, pe.TransformComponent)
+
+	World.AddSystem(moveableSystem)
+	World.AddSystem(renderSystem)
 }
 
 func update(deltaTime float64) {
-	projPos = projPos.Add(projVel.Mul(float32(deltaTime)))
+	// Game world update
+	World.Update(deltaTime)
 }
 
 func render() {
-	Renderer.SetDrawColor(21, 21, 21, 255)
-	Renderer.Clear()
-
-	rect := &sdl.Rect{X: int32(projPos.X), Y: int32(projPos.Y), W: 10, H: 10}
-
-	Renderer.SetDrawColor(255, 255, 255, 255)
-	Renderer.FillRect(rect)
-
-	Renderer.Present()
+	global.Renderer.Present()
 }
 
 func destroy() {
 	defer sdl.Quit()
-	defer Window.Destroy()
-	defer Renderer.Destroy()
+	defer global.Window.Destroy()
+	defer global.Renderer.Destroy()
 }
 
 func main() {
