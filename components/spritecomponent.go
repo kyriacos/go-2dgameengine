@@ -13,15 +13,15 @@ type SpriteComponent struct {
 	spriteFlip           sdl.RendererFlip
 }
 
-func NewSpriteComponent(owner *ecs.IEntity) *SpriteComponent {
-	transformComponent := owner.
-	return &SpriteComponent{
-		// texture:              t,
-		sourceRectangle:      s,
-		destinationRectangle: d,
-		spriteFlip:           sdl.FLIP_NONE,
-	}
-}
+// func NewSpriteComponent(owner *ecs.IEntity) *SpriteComponent {
+// 	// transformComponent := owner.
+// 	return &SpriteComponent{
+// 		// texture:              t,
+// 		sourceRectangle:      s,
+// 		destinationRectangle: d,
+// 		spriteFlip:           sdl.FLIP_NONE,
+// 	}
+// }
 
 func (c *SpriteComponent) SetTexture(textureId string) {
 	// c.texture =
