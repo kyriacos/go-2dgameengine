@@ -1,4 +1,4 @@
-package main
+package entities
 
 import (
 	"github.com/kyriacos/2dgameengine/components"

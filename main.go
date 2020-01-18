@@ -8,7 +8,9 @@ import (
 
 	"github.com/veandco/go-sdl2/sdl"
 
+	"github.com/kyriacos/2dgameengine/core"
 	"github.com/kyriacos/2dgameengine/ecs"
+	"github.com/kyriacos/2dgameengine/entities"
 	"github.com/kyriacos/2dgameengine/global"
 	"github.com/kyriacos/2dgameengine/systems"
 )
@@ -82,31 +84,37 @@ func setup() {
 	// Game - Load Level
 
 	// Create Entity Manager
-	em := &EntityManager{
-		entities: make(map[uint64]ecs.IEntity),
+	em := &core.EntityManager{
+		Entities: make(map[uint64]ecs.IEntity),
 	}
 
 	// Create asset manager
-	// am := &AssetManager{
-	// 	entityManager: em,
-	// 	textures:      make(map[string]*sdl.Texture),
-	// }
+	am := &core.AssetManager{
+		EntityManager: em,
+		Textures:      make(map[string]*sdl.Texture),
+	}
+	// level 0
+	textureFilePath := "./assets/images/tank-big-right.png"
+	am.AddTexture("tank-image", textureFilePath)
 
 	// create entities and components
-	pe := NewProjectileEntity()
+	e := entities.NewTankEntity(am)
 	// Add to entitymanager
-	em.AddEntity(pe)
+	em.AddEntity(e)
 
 	// create world
 	World = &ecs.World{}
 	// add systems
-	renderSystem := &systems.RenderSystem{}
-	renderSystem.Add(pe.Entity, pe.RenderComponent, pe.TransformComponent)
+	// renderSystem := &systems.RenderSystem{}
+	// renderSystem.Add(pe.Entity, pe.RenderComponent, pe.TransformComponent)
+	renderSpritesSystem := &systems.RenderSpritesSystem{}
+	renderSpritesSystem.Add(e.Entity, e.SpriteComponent)
+
 	moveableSystem := &systems.MoveableSystem{}
-	moveableSystem.Add(pe.Entity, pe.TransformComponent)
+	moveableSystem.Add(e.Entity, e.TransformComponent)
 
 	World.AddSystem(moveableSystem)
-	World.AddSystem(renderSystem)
+	World.AddSystem(renderSpritesSystem)
 }
 
 func update(deltaTime float64) {

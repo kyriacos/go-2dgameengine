@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"log"
@@ -7,13 +7,13 @@ import (
 )
 
 type AssetManager struct {
-	entityManager *EntityManager
-	textures      map[string]*sdl.Texture
+	EntityManager *EntityManager
+	Textures      map[string]*sdl.Texture
 }
 
 func (m *AssetManager) ClearData() {
-	for k := range m.textures {
-		delete(m.textures, k)
+	for k := range m.Textures {
+		delete(m.Textures, k)
 	}
 }
 
@@ -22,9 +22,9 @@ func (m *AssetManager) AddTexture(textureId string, filepath string) {
 	if err != nil {
 		log.Fatalf("Asset manager failed to load texture from file: %s", filepath)
 	}
-	m.textures[textureId] = texture
+	m.Textures[textureId] = texture
 }
 
 func (m *AssetManager) GetTexture(textureId string) *sdl.Texture {
-	return m.textures[textureId]
+	return m.Textures[textureId]
 }

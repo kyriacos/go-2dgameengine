@@ -1,15 +1,15 @@
-package main
+package core
 
 import "github.com/kyriacos/2dgameengine/ecs"
 
 type EntityManager struct {
 	// entities []*ecs.Entity
-	entities map[uint64]ecs.IEntity
+	Entities map[uint64]ecs.IEntity
 }
 
 func (em *EntityManager) AddEntity(e ecs.IEntity) *ecs.IEntity {
 	id := e.ID()
-	em.entities[id] = e
+	em.Entities[id] = e
 	return &e
 }
 

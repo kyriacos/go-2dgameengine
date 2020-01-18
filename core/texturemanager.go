@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"log"
@@ -9,7 +9,7 @@ import (
 )
 
 func LoadTexture(filename string) (*sdl.Texture, error) {
-	surface, err := img.Load("./textures/" + filename)
+	surface, err := img.Load(filename)
 	if err != nil {
 		log.Fatalf("Could not load texture from file: %s", filename)
 		return nil, err
@@ -24,6 +24,6 @@ func LoadTexture(filename string) (*sdl.Texture, error) {
 	return texture, nil
 }
 
-func DrawTexture(texture *sdl.Texture, sourceRect *sdl.Rect, destinationRectangle *sdl.Rect) {
-	global.Renderer.CopyEx(texture, sourceRect, destinationRectangle, 0, &sdl.Point{}, 0)
+func DrawTexture(texture *sdl.Texture, sourceRect *sdl.Rect, destinationRectangle *sdl.Rect, flip sdl.RendererFlip) {
+	global.Renderer.CopyEx(texture, sourceRect, destinationRectangle, 0, &sdl.Point{}, flip)
 }

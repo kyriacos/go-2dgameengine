@@ -1,27 +1,37 @@
 package components
 
 import (
+	"github.com/kyriacos/2dgameengine/core"
 	"github.com/kyriacos/2dgameengine/ecs"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
 type SpriteComponent struct {
 	ecs.Component
-	texture              *sdl.Texture
-	sourceRectangle      *sdl.Rect
-	destinationRectangle *sdl.Rect
-	spriteFlip           sdl.RendererFlip
+	Texture              *sdl.Texture
+	SourceRectangle      *sdl.Rect
+	DestinationRectangle *sdl.Rect
+	TransformComponent   *TransformComponent
+	SpriteFlip           sdl.RendererFlip
 }
 
-// func NewSpriteComponent(owner *ecs.IEntity) *SpriteComponent {
-// 	// transformComponent := owner.
-// 	return &SpriteComponent{
-// 		// texture:              t,
-// 		sourceRectangle:      s,
-// 		destinationRectangle: d,
-// 		spriteFlip:           sdl.FLIP_NONE,
-// 	}
-// }
+func NewSpriteComponent(
+	am *core.AssetManager,
+	transform *TransformComponent,
+	textureId string,
+	owner ecs.IEntity,
+) *SpriteComponent {
+
+	texture := am.GetTexture(textureId)
+
+	return &SpriteComponent{
+		Texture:              texture,
+		TransformComponent:   transform,
+		SourceRectangle:      &sdl.Rect{X: 0, Y: 0, W: int32(transform.Width), H: int32(transform.Height)},
+		DestinationRectangle: &sdl.Rect{},
+		SpriteFlip:           sdl.FLIP_NONE,
+	}
+}
 
 func (c *SpriteComponent) SetTexture(textureId string) {
 	// c.texture =
