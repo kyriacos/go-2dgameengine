@@ -96,6 +96,7 @@ func setup() {
 	// level 0
 	am.AddTexture("tank-image", "./assets/images/tank-big-right.png")         // tank
 	am.AddTexture("chopper-image", "./assets/images/chopper-spritesheet.png") // chopper
+	am.AddTexture("radar-image", "./assets/images/radar-spritesheet.png")     // radar
 
 	// tank entity
 	tank := entities.NewTankEntity(am)
@@ -103,6 +104,9 @@ func setup() {
 	// chopper entity
 	chopper := entities.NewChopperEntity(am)
 	em.AddEntity(chopper)
+	// radar entity
+	radar := entities.NewRadarEntity(am)
+	em.AddEntity(radar)
 
 	// create world
 	World = &ecs.World{}
@@ -112,6 +116,7 @@ func setup() {
 	renderSpritesSystem := &systems.RenderSpritesSystem{}
 	renderSpritesSystem.Add(tank.Entity, tank.SpriteComponent)
 	renderSpritesSystem.Add(chopper.Entity, chopper.SpriteComponent)
+	renderSpritesSystem.Add(radar.Entity, radar.SpriteComponent)
 
 	moveableSystem := &systems.MoveableSystem{}
 	moveableSystem.Add(tank.Entity, tank.TransformComponent)

@@ -4,6 +4,7 @@ import (
 	"github.com/kyriacos/2dgameengine/components"
 	"github.com/kyriacos/2dgameengine/core"
 	"github.com/kyriacos/2dgameengine/ecs"
+	"github.com/veandco/go-sdl2/sdl"
 )
 
 type spriteEntity struct {
@@ -22,6 +23,11 @@ func (r *RenderSpritesSystem) Update(dt float64) {
 	clear() // clear the buffer
 	for _, e := range r.entities {
 		s := e.SpriteComponent
+		if s.IsAnimated {
+			s.SourceRectangle.X = s.SourceRectangle.W * int32((int(sdl.GetTicks())/s.AnimationSpeed)%s.NumFrames)
+			s.SourceRectangle.Y = int32(s.AnimationIndex * s.TransformComponent.Height)
+		}
+
 		s.DestinationRectangle.X = int32(s.TransformComponent.Position.X)
 		s.DestinationRectangle.Y = int32(s.TransformComponent.Position.Y)
 		s.DestinationRectangle.W = int32(s.TransformComponent.Width * s.TransformComponent.Scale)
