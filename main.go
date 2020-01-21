@@ -81,8 +81,6 @@ func setup() {
 	global.Renderer.SetDrawColor(0, 0, 0, 255)
 	global.Renderer.Clear()
 
-	// Game - Load Level
-
 	// Create Entity Manager
 	em := &core.EntityManager{
 		Entities: make(map[uint64]ecs.IEntity),
@@ -93,14 +91,18 @@ func setup() {
 		EntityManager: em,
 		Textures:      make(map[string]*sdl.Texture),
 	}
-	// level 0
-	textureFilePath := "./assets/images/tank-big-right.png"
-	am.AddTexture("tank-image", textureFilePath)
 
-	// create entities and components
-	e := entities.NewTankEntity(am)
-	// Add to entitymanager
-	em.AddEntity(e)
+	// GAME - LOAD LEVEL
+	// level 0
+	am.AddTexture("tank-image", "./assets/images/tank-big-right.png")         // tank
+	am.AddTexture("chopper-image", "./assets/images/chopper-spritesheet.png") // chopper
+
+	// tank entity
+	tank := entities.NewTankEntity(am)
+	em.AddEntity(tank)
+	// chopper entity
+	chopper := entities.NewChopperEntity(am)
+	em.AddEntity(chopper)
 
 	// create world
 	World = &ecs.World{}
@@ -108,10 +110,11 @@ func setup() {
 	// renderSystem := &systems.RenderSystem{}
 	// renderSystem.Add(pe.Entity, pe.RenderComponent, pe.TransformComponent)
 	renderSpritesSystem := &systems.RenderSpritesSystem{}
-	renderSpritesSystem.Add(e.Entity, e.SpriteComponent)
+	renderSpritesSystem.Add(tank.Entity, tank.SpriteComponent)
+	renderSpritesSystem.Add(chopper.Entity, chopper.SpriteComponent)
 
 	moveableSystem := &systems.MoveableSystem{}
-	moveableSystem.Add(e.Entity, e.TransformComponent)
+	moveableSystem.Add(tank.Entity, tank.TransformComponent)
 
 	World.AddSystem(moveableSystem)
 	World.AddSystem(renderSpritesSystem)

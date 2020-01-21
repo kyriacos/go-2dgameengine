@@ -15,6 +15,23 @@ type SpriteComponent struct {
 	SpriteFlip           sdl.RendererFlip
 }
 
+// func New(
+// 	am *core.AssetManager,
+// 	transform *TransformComponent,
+// 	textureId string,
+// ) {
+// 	return &SpriteComponent{
+// 		Texture:              texture,
+// 		TransformComponent:   transform,
+// 		SourceRectangle:      &sdl.Rect{X: 0, Y: 0, W: int32(transform.Width), H: int32(transform.Height)},
+// 		DestinationRectangle: &sdl.Rect{},
+// 		SpriteFlip:           sdl.FLIP_NONE,
+// 	}
+// }
+// func Init(owner ecs.IEntity) {
+// 	// set the new instances or whaterver
+// }
+
 func NewSpriteComponent(
 	am *core.AssetManager,
 	transform *TransformComponent,
