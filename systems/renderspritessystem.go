@@ -20,7 +20,7 @@ func (r *RenderSpritesSystem) Add(e *ecs.Entity, sc *components.SpriteComponent)
 }
 
 func (r *RenderSpritesSystem) Update(dt float64) {
-	clear() // clear the buffer
+	// clear()
 	for _, e := range r.entities {
 		s := e.SpriteComponent
 		if s.IsAnimated {

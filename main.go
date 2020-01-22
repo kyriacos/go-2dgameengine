@@ -97,6 +97,11 @@ func setup() {
 	am.AddTexture("tank-image", "./assets/images/tank-big-right.png")         // tank
 	am.AddTexture("chopper-image", "./assets/images/chopper-spritesheet.png") // chopper
 	am.AddTexture("radar-image", "./assets/images/radar-spritesheet.png")     // radar
+	am.AddTexture("jungle-tile-texture", "./assets/tilemaps/jungle.png")      // radar
+
+	// game map
+	gameMap := NewGameMap(em, am, "jungle-tile-texture", 1, 32)
+	gameMap.LoadMap("./assets/tilemaps/jungle.map", 25, 20)
 
 	// tank entity
 	tank := entities.NewTankEntity(am)
@@ -108,11 +113,16 @@ func setup() {
 	radar := entities.NewRadarEntity(am)
 	em.AddEntity(radar)
 
-	// create world
+	// CREATE WORLD
 	World = &ecs.World{}
-	// add systems
+	// ADD SYSTEMS
+
 	// renderSystem := &systems.RenderSystem{}
 	// renderSystem.Add(pe.Entity, pe.RenderComponent, pe.TransformComponent)
+
+	renderTilesSystem := &systems.RenderTilesSystem{}
+	renderTilesSystem.SetEntities(gameMap.Entities)
+
 	renderSpritesSystem := &systems.RenderSpritesSystem{}
 	renderSpritesSystem.Add(radar.Entity, radar.SpriteComponent)
 	renderSpritesSystem.Add(tank.Entity, tank.SpriteComponent)
@@ -122,11 +132,12 @@ func setup() {
 	pcSystem.Add(chopper.Entity, chopper.PlayerControlComponent)
 
 	moveableSystem := &systems.MoveableSystem{}
-	// moveableSystem.Add(tank.Entity, tank.TransformComponent)
+	moveableSystem.Add(tank.Entity, tank.TransformComponent)
 	moveableSystem.Add(chopper.Entity, chopper.TransformComponent)
 
 	World.AddSystem(moveableSystem)
 	World.AddSystem(pcSystem)
+	World.AddSystem(renderTilesSystem)
 	World.AddSystem(renderSpritesSystem)
 }
 

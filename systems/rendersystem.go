@@ -29,7 +29,7 @@ func (r *RenderSystem) Add(e *ecs.Entity, rc *components.RenderComponent, tc *co
 
 // needs to work on transformcomponent and rendercomponent perhaps
 func (r *RenderSystem) Update(dt float64) {
-	clear() // clear the buffer
+	// clear() // clear the buffer
 	for _, e := range r.entities {
 		// renderComponent := e.RenderComponent
 		t := e.TransformComponent
