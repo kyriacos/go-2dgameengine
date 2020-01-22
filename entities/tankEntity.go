@@ -19,3 +19,7 @@ func NewTankEntity(am *core.AssetManager) *TankEntity {
 
 	return e
 }
+
+func (e *TankEntity) RenderType() ecs.Renderable {
+	return e.SpriteComponent
+}

@@ -34,3 +34,7 @@ func NewTileEntity(
 
 	return e
 }
+
+func (e *TileEntity) RenderType() ecs.Renderable {
+	return e.TileComponent
+}

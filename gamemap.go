@@ -71,7 +71,7 @@ func (m *GameMap) AddTile(sourceX, sourceY, x, y int32) *entities.TileEntity {
 		m.TileSize,
 		m.Scale,
 	)
-	m.entityManager.AddEntity(tileEntity)
+	m.entityManager.AddEntity(tileEntity, core.TileMapLayer)
 
 	return tileEntity
 

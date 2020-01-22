@@ -21,3 +21,7 @@ func NewChopperEntity(am *core.AssetManager) *ChopperEntity {
 
 	return e
 }
+
+func (e *ChopperEntity) RenderType() ecs.Renderable {
+	return e.SpriteComponent
+}

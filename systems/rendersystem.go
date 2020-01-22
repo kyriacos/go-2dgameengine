@@ -54,8 +54,3 @@ func drawBox(x, y, w, h int32) {
 	global.Renderer.SetDrawColor(255, 255, 255, 255)
 	global.Renderer.FillRect(rect)
 }
-
-func clear() {
-	global.Renderer.SetDrawColor(21, 21, 21, 255)
-	global.Renderer.Clear()
-}

@@ -83,7 +83,8 @@ func setup() {
 
 	// Create Entity Manager
 	em := &core.EntityManager{
-		Entities: make(map[uint64]ecs.IEntity),
+		Entities:      make(map[uint64]ecs.IEntity),
+		LayerEntities: make(map[core.LayerType][]ecs.IEntity),
 	}
 
 	// Create asset manager
@@ -105,29 +106,18 @@ func setup() {
 
 	// tank entity
 	tank := entities.NewTankEntity(am)
-	em.AddEntity(tank)
+	em.AddEntity(tank, core.EnemyLayer)
 	// chopper entity
 	chopper := entities.NewChopperEntity(am)
-	em.AddEntity(chopper)
+	em.AddEntity(chopper, core.PlayerLayer)
 	// radar entity
 	radar := entities.NewRadarEntity(am)
-	em.AddEntity(radar)
+	em.AddEntity(radar, core.UILayer)
 
 	// CREATE WORLD
 	World = &ecs.World{}
+
 	// ADD SYSTEMS
-
-	// renderSystem := &systems.RenderSystem{}
-	// renderSystem.Add(pe.Entity, pe.RenderComponent, pe.TransformComponent)
-
-	renderTilesSystem := &systems.RenderTilesSystem{}
-	renderTilesSystem.SetEntities(gameMap.Entities)
-
-	renderSpritesSystem := &systems.RenderSpritesSystem{}
-	renderSpritesSystem.Add(radar.Entity, radar.SpriteComponent)
-	renderSpritesSystem.Add(tank.Entity, tank.SpriteComponent)
-	renderSpritesSystem.Add(chopper.Entity, chopper.SpriteComponent)
-
 	pcSystem := &systems.PlayerControlSystem{}
 	pcSystem.Add(chopper.Entity, chopper.PlayerControlComponent)
 
@@ -135,10 +125,11 @@ func setup() {
 	moveableSystem.Add(tank.Entity, tank.TransformComponent)
 	moveableSystem.Add(chopper.Entity, chopper.TransformComponent)
 
+	renderLayersSystem := &systems.RenderLayersSystem{EM: em}
+
 	World.AddSystem(moveableSystem)
 	World.AddSystem(pcSystem)
-	World.AddSystem(renderTilesSystem)
-	World.AddSystem(renderSpritesSystem)
+	World.AddSystem(renderLayersSystem)
 }
 
 func update(deltaTime float64) {

@@ -1,11 +1,16 @@
 package ecs
 
-import "sync/atomic"
+import (
+	"sync/atomic"
+)
 
 var _id uint64
 
+type Renderable interface{}
+
 type IEntity interface {
 	ID() uint64
+	RenderType() Renderable
 }
 
 type Entity struct {

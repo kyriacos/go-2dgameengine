@@ -4,12 +4,14 @@ import "github.com/kyriacos/2dgameengine/ecs"
 
 type EntityManager struct {
 	// entities []*ecs.Entity
-	Entities map[uint64]ecs.IEntity
+	Entities      map[uint64]ecs.IEntity
+	LayerEntities map[LayerType][]ecs.IEntity // TODO: use a map instead with the uid
 }
 
-func (em *EntityManager) AddEntity(e ecs.IEntity) *ecs.IEntity {
+func (em *EntityManager) AddEntity(e ecs.IEntity, layer LayerType) *ecs.IEntity {
 	id := e.ID()
 	em.Entities[id] = e
+	em.LayerEntities[layer] = append(em.LayerEntities[layer], e)
 	return &e
 }
 
@@ -21,6 +23,10 @@ func (em *EntityManager) GetEntity(n string) *ecs.Entity {
 	// }
 
 	return nil
+}
+
+func (em *EntityManager) GetEntitiesByLayer(layer LayerType) []ecs.IEntity {
+	return em.LayerEntities[layer]
 }
 
 // update

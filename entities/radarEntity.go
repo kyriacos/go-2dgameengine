@@ -19,3 +19,7 @@ func NewRadarEntity(am *core.AssetManager) *RadarEntity {
 
 	return e
 }
+
+func (e *RadarEntity) RenderType() ecs.Renderable {
+	return e.SpriteComponent
+}
