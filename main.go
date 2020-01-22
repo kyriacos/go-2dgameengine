@@ -61,8 +61,8 @@ func initSDL() (err error) {
 }
 
 func processInput() {
-	if event := sdl.PollEvent(); event != nil {
-		switch t := event.(type) {
+	if global.Event = sdl.PollEvent(); global.Event != nil {
+		switch t := global.Event.(type) {
 		case *sdl.QuitEvent: // sdl.QUIT
 			running = false
 		case *sdl.KeyboardEvent:
@@ -114,14 +114,19 @@ func setup() {
 	// renderSystem := &systems.RenderSystem{}
 	// renderSystem.Add(pe.Entity, pe.RenderComponent, pe.TransformComponent)
 	renderSpritesSystem := &systems.RenderSpritesSystem{}
+	renderSpritesSystem.Add(radar.Entity, radar.SpriteComponent)
 	renderSpritesSystem.Add(tank.Entity, tank.SpriteComponent)
 	renderSpritesSystem.Add(chopper.Entity, chopper.SpriteComponent)
-	renderSpritesSystem.Add(radar.Entity, radar.SpriteComponent)
+
+	pcSystem := &systems.PlayerControlSystem{}
+	pcSystem.Add(chopper.Entity, chopper.PlayerControlComponent)
 
 	moveableSystem := &systems.MoveableSystem{}
-	moveableSystem.Add(tank.Entity, tank.TransformComponent)
+	// moveableSystem.Add(tank.Entity, tank.TransformComponent)
+	moveableSystem.Add(chopper.Entity, chopper.TransformComponent)
 
 	World.AddSystem(moveableSystem)
+	World.AddSystem(pcSystem)
 	World.AddSystem(renderSpritesSystem)
 }
 
