@@ -24,7 +24,7 @@ func (r *RenderSpritesSystem) Update(dt float64) {
 	for _, e := range r.entities {
 		s := e.SpriteComponent
 		if s.IsAnimated {
-			s.SourceRectangle.X = s.SourceRectangle.W * int32((int(sdl.GetTicks())/s.AnimationSpeed)%s.NumFrames)
+			s.SourceRectangle.X = s.SourceRectangle.W * int32((int32(sdl.GetTicks())/s.AnimationSpeed)%s.NumFrames)
 			s.SourceRectangle.Y = int32(s.AnimationIndex * s.TransformComponent.Height)
 		}
 

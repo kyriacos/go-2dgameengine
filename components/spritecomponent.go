@@ -7,9 +7,9 @@ import (
 )
 
 type Animation struct {
-	index          int
-	numFrames      int
-	animationSpeed int
+	index          int32
+	numFrames      int32
+	animationSpeed int32
 }
 
 type SpriteComponent struct {
@@ -22,11 +22,11 @@ type SpriteComponent struct {
 
 	IsAnimated     bool
 	IsFixed        bool // doesn't move
-	NumFrames      int
-	AnimationSpeed int
+	NumFrames      int32
+	AnimationSpeed int32
 
 	Animations           map[string]Animation
-	AnimationIndex       int
+	AnimationIndex       int32
 	CurrentAnimationName string
 }
 
@@ -71,8 +71,8 @@ func NewAnimatedSpriteComponent(
 	am *core.AssetManager,
 	transform *TransformComponent,
 	textureID string,
-	numFrames int,
-	animationSpeed int,
+	numFrames int32,
+	animationSpeed int32,
 	hasDirections bool,
 	isFixed bool,
 	owner ecs.IEntity,

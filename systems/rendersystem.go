@@ -33,7 +33,7 @@ func (r *RenderSystem) Update(dt float64) {
 	for _, e := range r.entities {
 		// renderComponent := e.RenderComponent
 		t := e.TransformComponent
-		drawBox(int(t.Position.X), int(t.Position.Y), t.Width, t.Height)
+		drawBox(int32(t.Position.X), int32(t.Position.Y), t.Width, t.Height)
 		// switch renderComponent.Shape.(type) {
 		// case sdl.Rect:
 		// 	drawRect()
@@ -44,7 +44,7 @@ func (r *RenderSystem) Update(dt float64) {
 	}
 }
 
-func drawBox(x, y, w, h int) {
+func drawBox(x, y, w, h int32) {
 	rect := &sdl.Rect{
 		X: int32(x),
 		Y: int32(y),
