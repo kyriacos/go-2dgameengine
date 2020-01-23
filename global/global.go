@@ -7,4 +7,6 @@ var (
 	Renderer *sdl.Renderer
 
 	Event sdl.Event
+
+	WindowWidth, WindowHeight int
 )

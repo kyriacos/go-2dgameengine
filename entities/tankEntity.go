@@ -14,7 +14,7 @@ type TankEntity struct {
 
 func NewTankEntity(am *core.AssetManager) *TankEntity {
 	e := &TankEntity{Entity: ecs.NewEntity()}
-	e.TransformComponent = components.NewTransformComponent(0, 0, 20, 20, 32, 32, 1, e)
+	e.TransformComponent = components.NewTransformComponent(150, 495, 5, 0, 32, 32, 1, e)
 	e.SpriteComponent = components.NewSpriteComponent(am, e.TransformComponent, "tank-image", e)
 
 	return e

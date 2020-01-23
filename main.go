@@ -18,14 +18,8 @@ import (
 var (
 	World *ecs.World
 
-	// WindowWidth  = flag.Int("width", 640, "the window width")
-	// WindowHeight = flag.Int("height", 480, "the window height")
-	WindowWidth  = 800
-	WindowHeight = 600
-
 	running = false
-
-	showFPS = flag.Bool("showFPS", false, "Show current FPS and on exit display the average FPS.")
+	showFPS = false
 )
 
 func initSDL() (err error) {
@@ -38,8 +32,8 @@ func initSDL() (err error) {
 		"",
 		sdl.WINDOWPOS_CENTERED,
 		sdl.WINDOWPOS_CENTERED,
-		int32(WindowWidth),
-		int32(WindowHeight),
+		int32(global.WindowWidth),
+		int32(global.WindowHeight),
 		sdl.WINDOW_BORDERLESS)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating SDL Window: %s\n", err)
@@ -101,7 +95,7 @@ func setup() {
 	am.AddTexture("jungle-tile-texture", "./assets/tilemaps/jungle.png")      // radar
 
 	// game map
-	gameMap := NewGameMap(em, am, "jungle-tile-texture", 1, 32)
+	gameMap := NewGameMap(em, am, "jungle-tile-texture", 2, 32)
 	gameMap.LoadMap("./assets/tilemaps/jungle.map", 25, 20)
 
 	// tank entity
@@ -125,10 +119,14 @@ func setup() {
 	moveableSystem.Add(tank.Entity, tank.TransformComponent)
 	moveableSystem.Add(chopper.Entity, chopper.TransformComponent)
 
-	renderLayersSystem := &systems.RenderLayersSystem{EM: em}
+	renderLayersSystem := &systems.RenderLayersSystem{EM: em, Camera: chopper.CameraComponent}
+
+	cameraSystem := &systems.CameraSystem{}
+	cameraSystem.Add(chopper.Entity, chopper.TransformComponent, chopper.CameraComponent)
 
 	World.AddSystem(moveableSystem)
 	World.AddSystem(pcSystem)
+	World.AddSystem(cameraSystem)
 	World.AddSystem(renderLayersSystem)
 }
 
@@ -148,6 +146,10 @@ func destroy() {
 }
 
 func main() {
+	flag.IntVar(&global.WindowWidth, "width", 800, "the window width")
+	flag.IntVar(&global.WindowHeight, "height", 600, "the window height")
+	flag.BoolVar(&showFPS, "showFPS", false, "Show current FPS and on exit display the average FPS.")
+
 	flag.Parse()
 
 	if err := initSDL(); err != nil {
@@ -179,7 +181,7 @@ func main() {
 
 		sdl.Delay(uint32(math.Floor(FrameTargetTime - deltaTime))) // pause until we reach the target frames
 
-		if *showFPS {
+		if showFPS {
 			counter++
 			currentFPS := 1.0 / deltaTime
 			sumFPS += currentFPS
@@ -190,7 +192,7 @@ func main() {
 
 	destroy()
 
-	if *showFPS {
+	if showFPS {
 		fmt.Printf("Average FPS: %f\n", sumFPS/float64(counter))
 	}
 

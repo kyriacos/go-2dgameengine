@@ -13,7 +13,8 @@ import (
 
 type RenderLayersSystem struct {
 	// entities []Renderable
-	EM *core.EntityManager
+	EM     *core.EntityManager
+	Camera *components.CameraComponent
 }
 
 // func (r *RenderLayersSystem) Add(e Renderable) {
@@ -29,11 +30,11 @@ func (r *RenderLayersSystem) Update(dt float64) {
 		for _, e := range entities {
 			switch layerNumber {
 			case core.TileMapLayer, core.VegetationLayer:
-				render(e)
+				render(e, r.Camera)
 			case core.EnemyLayer, core.PlayerLayer:
-				render(e)
+				render(e, r.Camera)
 			case core.UILayer:
-				render(e)
+				render(e, r.Camera)
 			default:
 				fmt.Println("not implemented yet")
 			}
@@ -41,9 +42,11 @@ func (r *RenderLayersSystem) Update(dt float64) {
 	}
 }
 
-func render(e ecs.IEntity) {
+func render(e ecs.IEntity, camera *components.CameraComponent) {
 	switch s := e.RenderType().(type) {
 	case *components.TileComponent:
+		s.DestinationRectangle.X = int32(s.Position.X - camera.Position.X)
+		s.DestinationRectangle.Y = int32(s.Position.Y - camera.Position.Y)
 		core.DrawTexture(s.Texture, s.SourceRectangle, s.DestinationRectangle, s.TileFlip)
 	case *components.SpriteComponent:
 		if s.IsAnimated {
@@ -51,8 +54,8 @@ func render(e ecs.IEntity) {
 			s.SourceRectangle.Y = int32(s.AnimationIndex * s.TransformComponent.Height)
 		}
 
-		s.DestinationRectangle.X = int32(s.TransformComponent.Position.X)
-		s.DestinationRectangle.Y = int32(s.TransformComponent.Position.Y)
+		s.DestinationRectangle.X = int32(s.TransformComponent.Position.X - camera.Position.X)
+		s.DestinationRectangle.Y = int32(s.TransformComponent.Position.Y - camera.Position.Y)
 		s.DestinationRectangle.W = int32(s.TransformComponent.Width * s.TransformComponent.Scale)
 		s.DestinationRectangle.H = int32(s.TransformComponent.Height * s.TransformComponent.Scale)
 

@@ -27,7 +27,3 @@ func (s *MoveableSystem) Update(dt float64) {
 		t.Position = t.Position.Add(change)
 	}
 }
-
-// define filter when creating a new system
-// add initialize methods to collect all the entities from the beginning so we don't need to find them each time?
-// how does tiny ecs do it?
