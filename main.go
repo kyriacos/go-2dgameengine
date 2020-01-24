@@ -89,10 +89,10 @@ func setup() {
 
 	// GAME - LOAD LEVEL
 	// level 0
-	am.AddTexture("tank-image", "./assets/images/tank-big-right.png")         // tank
-	am.AddTexture("chopper-image", "./assets/images/chopper-spritesheet.png") // chopper
-	am.AddTexture("radar-image", "./assets/images/radar-spritesheet.png")     // radar
-	am.AddTexture("jungle-tile-texture", "./assets/tilemaps/jungle.png")      // radar
+	am.AddTexture("tank-image", "./assets/images/tank-big-right.png")        // tank
+	am.AddTexture("player-image", "./assets/images/chopper-spritesheet.png") // player
+	am.AddTexture("radar-image", "./assets/images/radar-spritesheet.png")    // radar
+	am.AddTexture("jungle-tile-texture", "./assets/tilemaps/jungle.png")     // radar
 
 	// game map
 	gameMap := NewGameMap(em, am, "jungle-tile-texture", 2, 32)
@@ -101,9 +101,9 @@ func setup() {
 	// tank entity
 	tank := entities.NewTankEntity(am)
 	em.AddEntity(tank, core.EnemyLayer)
-	// chopper entity
-	chopper := entities.NewChopperEntity(am)
-	em.AddEntity(chopper, core.PlayerLayer)
+	// player entity
+	player := entities.NewPlayerEntity(am)
+	em.AddEntity(player, core.PlayerLayer)
 	// radar entity
 	radar := entities.NewRadarEntity(am)
 	em.AddEntity(radar, core.UILayer)
@@ -113,16 +113,16 @@ func setup() {
 
 	// ADD SYSTEMS
 	pcSystem := &systems.PlayerControlSystem{}
-	pcSystem.Add(chopper.Entity, chopper.PlayerControlComponent)
+	pcSystem.Add(player.Entity, player.PlayerControlComponent)
 
 	moveableSystem := &systems.MoveableSystem{}
 	moveableSystem.Add(tank.Entity, tank.TransformComponent)
-	moveableSystem.Add(chopper.Entity, chopper.TransformComponent)
+	moveableSystem.Add(player.Entity, player.TransformComponent)
 
-	renderLayersSystem := &systems.RenderLayersSystem{EM: em, Camera: chopper.CameraComponent}
+	renderLayersSystem := &systems.RenderLayersSystem{EM: em, Camera: player.CameraComponent}
 
 	cameraSystem := &systems.CameraSystem{}
-	cameraSystem.Add(chopper.Entity, chopper.TransformComponent, chopper.CameraComponent)
+	cameraSystem.Add(player.Entity, player.TransformComponent, player.CameraComponent)
 
 	World.AddSystem(moveableSystem)
 	World.AddSystem(pcSystem)

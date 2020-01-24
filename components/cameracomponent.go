@@ -10,6 +10,7 @@ type CameraComponent struct {
 	*ecs.Component
 	Position vec.Vector2
 	// Ca:      &sdl.Rect{X: 0, Y: 0, W: int32(transform.Width), H: int32(transform.Height)},
+	Scale         int
 	Width, Height int32
 }
 
@@ -22,5 +23,6 @@ func NewCameraComponent(
 		Position:  position,
 		Width:     int32(global.WindowWidth),
 		Height:    int32(global.WindowHeight),
+		Scale:     2,
 	}
 }
