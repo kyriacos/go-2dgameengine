@@ -9,4 +9,6 @@ var (
 	Event sdl.Event
 
 	WindowWidth, WindowHeight int
+
+	Running = false
 )

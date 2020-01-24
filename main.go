@@ -18,7 +18,6 @@ import (
 var (
 	World *ecs.World
 
-	running = false
 	showFPS = false
 )
 
@@ -58,13 +57,13 @@ func processInput() {
 	if global.Event = sdl.PollEvent(); global.Event != nil {
 		switch t := global.Event.(type) {
 		case *sdl.QuitEvent: // sdl.QUIT
-			running = false
+			global.Running = false
 		case *sdl.KeyboardEvent:
 			key := t.Keysym.Sym
 			if t.Type == sdl.KEYDOWN {
 				switch key {
 				case sdl.K_ESCAPE:
-					running = false
+					global.Running = false
 				}
 			}
 		}
@@ -124,9 +123,14 @@ func setup() {
 	cameraSystem := &systems.CameraSystem{}
 	cameraSystem.Add(player.Entity, player.TransformComponent, player.CameraComponent)
 
+	collisionSystem := &systems.CollisionSystem{Camera: player.CameraComponent}
+	collisionSystem.Add(player.Entity, player.TransformComponent, player.ColliderComponent)
+	collisionSystem.Add(tank.Entity, tank.TransformComponent, tank.ColliderComponent)
+
 	World.AddSystem(moveableSystem)
 	World.AddSystem(pcSystem)
 	World.AddSystem(cameraSystem)
+	World.AddSystem(collisionSystem)
 	World.AddSystem(renderLayersSystem)
 }
 
@@ -165,8 +169,8 @@ func main() {
 
 	setup()
 
-	running = true
-	for running {
+	global.Running = true
+	for global.Running {
 		ticksCurrent = sdl.GetTicks()
 
 		deltaTime = float64(ticksCurrent-ticksLastFrame) / 1000.0

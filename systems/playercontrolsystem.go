@@ -32,20 +32,20 @@ func (s *PlayerControlSystem) Update(dt float64) {
 			if t.Type == sdl.KEYDOWN {
 				switch key {
 				case sdl.K_UP:
-					transform.Velocity.Y = -40
+					transform.Velocity.Y = -100
 					transform.Velocity.X = 0
 					sprite.Play("Up")
 				case sdl.K_RIGHT:
 					transform.Velocity.Y = 0
-					transform.Velocity.X = 40
+					transform.Velocity.X = 100
 					sprite.Play("Right")
 				case sdl.K_DOWN:
-					transform.Velocity.Y = 40
+					transform.Velocity.Y = 100
 					transform.Velocity.X = 0
 					sprite.Play("Down")
 				case sdl.K_LEFT:
 					transform.Velocity.Y = 0
-					transform.Velocity.X = -40
+					transform.Velocity.X = -100
 					sprite.Play("Left")
 				case sdl.K_SPACE:
 					// transform.Velocity.Y = 0
