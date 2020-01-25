@@ -54,8 +54,17 @@ func render(e ecs.IEntity, camera *components.CameraComponent) {
 			s.SourceRectangle.Y = int32(s.AnimationIndex * s.TransformComponent.Height)
 		}
 
-		s.DestinationRectangle.X = int32(s.TransformComponent.Position.X - camera.Position.X)
-		s.DestinationRectangle.Y = int32(s.TransformComponent.Position.Y - camera.Position.Y)
+		x := s.TransformComponent.Position.X
+		y := s.TransformComponent.Position.Y
+
+		// If the sprite is fixed then dont change its position relative to the camera
+		if !s.IsFixed {
+			x -= camera.Position.X
+			y -= camera.Position.Y
+		}
+
+		s.DestinationRectangle.X = int32(x)
+		s.DestinationRectangle.Y = int32(y)
 		s.DestinationRectangle.W = int32(s.TransformComponent.Width * s.TransformComponent.Scale)
 		s.DestinationRectangle.H = int32(s.TransformComponent.Height * s.TransformComponent.Scale)
 
