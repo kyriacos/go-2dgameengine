@@ -10,22 +10,24 @@ import (
 
 type keyboardEntity struct {
 	*ecs.Entity
-	*components.PlayerControlComponent
+	*components.SpriteComponent
 	*components.TransformComponent
 }
 type PlayerControlSystem struct {
 	entities []*keyboardEntity
 }
 
-func (s *PlayerControlSystem) Add(e *ecs.Entity, tc *components.TransformComponent, kc *components.PlayerControlComponent) {
-	s.entities = append(s.entities, &keyboardEntity{Entity: e, TransformComponent: tc, PlayerControlComponent: kc})
+func (s *PlayerControlSystem) Add(e *ecs.Entity, tc *components.TransformComponent, sp *components.SpriteComponent) {
+	s.entities = append(s.entities, &keyboardEntity{
+		Entity:             e,
+		TransformComponent: tc,
+		SpriteComponent:    sp})
 }
 
 func (s *PlayerControlSystem) Update(dt float64) {
 	for _, e := range s.entities {
-		k := e.PlayerControlComponent
 		transform := e.TransformComponent
-		sprite := k.SpriteComponent
+		sprite := e.SpriteComponent
 
 		switch t := global.Event.(type) {
 		case *sdl.KeyboardEvent:

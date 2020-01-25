@@ -21,6 +21,10 @@ func (e *Entity) ID() uint64 {
 	return e.id
 }
 
+func (e *Entity) RenderType() Renderable {
+	return nil
+}
+
 // func (e *Entity) GetComponent(c *Component)
 
 func NewEntity() *Entity {

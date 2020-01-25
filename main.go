@@ -120,11 +120,11 @@ func setup() {
 
 	// ADD SYSTEMS
 	pcSystem := &systems.PlayerControlSystem{}
-	pcSystem.Add(player.Entity, player.TransformComponent, player.PlayerControlComponent)
+	pcSystem.Add(player.Entity, player.TransformComponent, player.SpriteComponent)
 
 	moveableSystem := &systems.MoveableSystem{}
 	moveableSystem.Add(tank.Entity, tank.TransformComponent)
-	// moveableSystem.Add(player.Entity, player.TransformComponent)
+	moveableSystem.Add(player.Entity, player.TransformComponent)
 
 	cameraSystem := &systems.CameraSystem{}
 	cameraSystem.Add(player.Entity, player.TransformComponent, player.CameraComponent)
