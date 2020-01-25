@@ -45,7 +45,7 @@ func initSDL() (err error) {
 		return err
 	}
 
-	// if err = Renderer.SetDrawBlendMode(sdl.BLENDMODE_BLEND); err != nil {
+	// if err = global.Renderer.SetDrawBlendMode(sdl.BLENDMODE_BLEND); err != nil {
 	// 	fmt.Fprintf(os.Stderr, "Failed to set blend mode: %s", err)
 	// 	return
 	// }
@@ -64,6 +64,8 @@ func processInput() {
 				switch key {
 				case sdl.K_ESCAPE:
 					global.Running = false
+				case sdl.K_d:
+					global.EnableDebug = !global.EnableDebug
 				}
 			}
 		}
@@ -71,8 +73,8 @@ func processInput() {
 }
 
 func setup() {
-	global.Renderer.SetDrawColor(0, 0, 0, 255)
-	global.Renderer.Clear()
+	// global.Renderer.SetDrawColor(0, 0, 0, 255)
+	// global.Renderer.Clear()
 
 	// Create Entity Manager
 	em := &core.EntityManager{
@@ -88,10 +90,11 @@ func setup() {
 
 	// GAME - LOAD LEVEL
 	// level 0
-	am.AddTexture("tank-image", "./assets/images/tank-big-right.png")        // tank
-	am.AddTexture("player-image", "./assets/images/chopper-spritesheet.png") // player
-	am.AddTexture("radar-image", "./assets/images/radar-spritesheet.png")    // radar
-	am.AddTexture("jungle-tile-texture", "./assets/tilemaps/jungle.png")     // radar
+	am.AddTexture("tank-image", "./assets/images/tank-big-right.png")           // tank
+	am.AddTexture("player-image", "./assets/images/chopper-spritesheet.png")    // player
+	am.AddTexture("radar-image", "./assets/images/radar-spritesheet.png")       // radar
+	am.AddTexture("jungle-tile-texture", "./assets/tilemaps/jungle.png")        // tiles
+	am.AddTexture("collision-texture", "./assets/images/collision-texture.png") // collision bounding box texture
 
 	// game map
 	gameMap := NewGameMap(em, am, "jungle-tile-texture", 2, 32)
@@ -118,20 +121,27 @@ func setup() {
 	moveableSystem.Add(tank.Entity, tank.TransformComponent)
 	moveableSystem.Add(player.Entity, player.TransformComponent)
 
-	renderLayersSystem := &systems.RenderLayersSystem{EM: em, Camera: player.CameraComponent}
-
 	cameraSystem := &systems.CameraSystem{}
 	cameraSystem.Add(player.Entity, player.TransformComponent, player.CameraComponent)
 
-	collisionSystem := &systems.CollisionSystem{Camera: player.CameraComponent}
+	collisionSystem := &systems.CollisionSystem{Camera: player.CameraComponent, AManager: am}
 	collisionSystem.Add(player.Entity, player.TransformComponent, player.ColliderComponent)
 	collisionSystem.Add(tank.Entity, tank.TransformComponent, tank.ColliderComponent)
+
+	renderBaseSystem := &systems.RenderBase{}
+	renderLayersSystem := &systems.RenderLayersSystem{EM: em, Camera: player.CameraComponent}
+
+	renderDebugSystem := &systems.RenderDebugSystem{AManager: am}
+	renderDebugSystem.Add(player.Entity, player.ColliderComponent)
+	renderDebugSystem.Add(tank.Entity, tank.ColliderComponent)
 
 	World.AddSystem(moveableSystem)
 	World.AddSystem(pcSystem)
 	World.AddSystem(cameraSystem)
 	World.AddSystem(collisionSystem)
+	World.AddSystem(renderBaseSystem)
 	World.AddSystem(renderLayersSystem)
+	World.AddSystem(renderDebugSystem)
 }
 
 func update(deltaTime float64) {

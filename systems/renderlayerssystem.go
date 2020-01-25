@@ -7,7 +7,6 @@ import (
 	"github.com/kyriacos/2dgameengine/components"
 	"github.com/kyriacos/2dgameengine/core"
 	"github.com/kyriacos/2dgameengine/ecs"
-	"github.com/kyriacos/2dgameengine/global"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -22,8 +21,6 @@ type RenderLayersSystem struct {
 // }
 
 func (r *RenderLayersSystem) Update(dt float64) {
-	clear()
-
 	var layerNumber core.LayerType = 0
 	for layerNumber = 0; int(layerNumber) < core.NumLayers; layerNumber++ {
 		entities := r.EM.GetEntitiesByLayer(layerNumber)
@@ -72,9 +69,4 @@ func render(e ecs.IEntity, camera *components.CameraComponent) {
 	default:
 		log.Fatalf("Trying to render an entity that has no RenderType defined: %s", e)
 	}
-}
-
-func clear() {
-	global.Renderer.SetDrawColor(21, 21, 21, 255)
-	global.Renderer.Clear()
 }

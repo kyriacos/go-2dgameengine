@@ -18,7 +18,6 @@ func NewColliderComponent(
 	tag string,
 	position vec.Vector2,
 	width, height int32,
-	// entityWidth, entityHeight int32,
 	owner ecs.IEntity) *ColliderComponent {
 
 	collider := &sdl.Rect{X: int32(position.X), Y: int32(position.Y), W: width, H: height}

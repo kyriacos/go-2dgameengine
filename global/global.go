@@ -11,4 +11,6 @@ var (
 	WindowWidth, WindowHeight int
 
 	Running = false
+
+	EnableDebug = false
 )

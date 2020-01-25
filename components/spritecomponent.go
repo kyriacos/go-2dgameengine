@@ -111,7 +111,7 @@ func NewAnimatedSpriteComponent(
 		c.CurrentAnimationName = "SingleAnimation"
 	}
 
-	// c.Play(c.CurrentAnimationName)
+	c.Play(c.CurrentAnimationName)
 
 	return c
 }

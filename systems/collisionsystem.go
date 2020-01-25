@@ -2,6 +2,7 @@ package systems
 
 import (
 	"github.com/kyriacos/2dgameengine/components"
+	"github.com/kyriacos/2dgameengine/core"
 	"github.com/kyriacos/2dgameengine/ecs"
 	"github.com/kyriacos/2dgameengine/global"
 	"github.com/veandco/go-sdl2/sdl"
@@ -15,6 +16,7 @@ type collisionEntity struct {
 
 type CollisionSystem struct {
 	entities []*collisionEntity
+	AManager *core.AssetManager
 	Camera   *components.CameraComponent
 }
 
