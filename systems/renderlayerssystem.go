@@ -6,6 +6,7 @@ import (
 
 	"github.com/kyriacos/2dgameengine/components"
 	"github.com/kyriacos/2dgameengine/core"
+	"github.com/kyriacos/2dgameengine/core/enums"
 	"github.com/kyriacos/2dgameengine/ecs"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -21,16 +22,18 @@ type RenderLayersSystem struct {
 // }
 
 func (r *RenderLayersSystem) Update(dt float64) {
-	var layerNumber core.LayerType = 0
-	for layerNumber = 0; int(layerNumber) < core.NumLayers; layerNumber++ {
+	var layerNumber enums.LayerType = 0
+	for layerNumber = 0; int(layerNumber) < enums.NumLayers; layerNumber++ {
 		entities := r.EM.GetEntitiesByLayer(layerNumber)
 		for _, e := range entities {
 			switch layerNumber {
-			case core.TileMapLayer, core.VegetationLayer:
+			case enums.TileMapLayer, enums.VegetationLayer:
 				render(e, r.Camera)
-			case core.EnemyLayer, core.PlayerLayer:
+			case enums.EnemyLayer, enums.PlayerLayer:
 				render(e, r.Camera)
-			case core.UILayer:
+			case enums.ObstacleLayer:
+				render(e, r.Camera)
+			case enums.UILayer:
 				render(e, r.Camera)
 			default:
 				fmt.Println("not implemented yet")

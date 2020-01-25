@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/kyriacos/2dgameengine/core"
+	"github.com/kyriacos/2dgameengine/core/enums"
 	"github.com/kyriacos/2dgameengine/entities"
 )
 
@@ -71,7 +72,7 @@ func (m *GameMap) AddTile(sourceX, sourceY, x, y int32) *entities.TileEntity {
 		m.TileSize,
 		m.Scale,
 	)
-	m.entityManager.AddEntity(tileEntity, core.TileMapLayer)
+	m.entityManager.AddEntity(tileEntity, enums.TileMapLayer)
 
 	return tileEntity
 

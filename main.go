@@ -9,6 +9,7 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 
 	"github.com/kyriacos/2dgameengine/core"
+	"github.com/kyriacos/2dgameengine/core/enums"
 	"github.com/kyriacos/2dgameengine/ecs"
 	"github.com/kyriacos/2dgameengine/entities"
 	"github.com/kyriacos/2dgameengine/global"
@@ -79,7 +80,7 @@ func setup() {
 	// Create Entity Manager
 	em := &core.EntityManager{
 		Entities:      make(map[uint64]ecs.IEntity),
-		LayerEntities: make(map[core.LayerType][]ecs.IEntity),
+		LayerEntities: make(map[enums.LayerType][]ecs.IEntity),
 	}
 
 	// Create asset manager
@@ -93,6 +94,7 @@ func setup() {
 	am.AddTexture("tank-image", "./assets/images/tank-big-right.png")           // tank
 	am.AddTexture("player-image", "./assets/images/chopper-spritesheet.png")    // player
 	am.AddTexture("radar-image", "./assets/images/radar-spritesheet.png")       // radar
+	am.AddTexture("helipad-image", "./assets/images/helipad.png")               // radar
 	am.AddTexture("jungle-tile-texture", "./assets/tilemaps/jungle.png")        // tiles
 	am.AddTexture("collision-texture", "./assets/images/collision-texture.png") // collision bounding box texture
 
@@ -102,13 +104,16 @@ func setup() {
 
 	// tank entity
 	tank := entities.NewTankEntity(am)
-	em.AddEntity(tank, core.EnemyLayer)
+	em.AddEntity(tank, enums.EnemyLayer)
 	// player entity
 	player := entities.NewPlayerEntity(am)
-	em.AddEntity(player, core.PlayerLayer)
+	em.AddEntity(player, enums.PlayerLayer)
 	// radar entity
 	radar := entities.NewRadarEntity(am)
-	em.AddEntity(radar, core.UILayer)
+	em.AddEntity(radar, enums.UILayer)
+	// level complete entity
+	helipad := entities.NewHelipadEntity(am)
+	em.AddEntity(helipad, enums.ObstacleLayer)
 
 	// CREATE WORLD
 	World = &ecs.World{}
@@ -127,6 +132,7 @@ func setup() {
 	collisionSystem := &systems.CollisionSystem{Camera: player.CameraComponent, AManager: am}
 	collisionSystem.Add(player.Entity, player.TransformComponent, player.ColliderComponent)
 	collisionSystem.Add(tank.Entity, tank.TransformComponent, tank.ColliderComponent)
+	collisionSystem.Add(helipad.Entity, helipad.TransformComponent, helipad.ColliderComponent)
 
 	renderBaseSystem := &systems.RenderBase{}
 	renderLayersSystem := &systems.RenderLayersSystem{EM: em, Camera: player.CameraComponent}

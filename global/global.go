@@ -12,5 +12,5 @@ var (
 
 	Running = false
 
-	EnableDebug = false
+	EnableDebug = true
 )

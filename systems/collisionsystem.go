@@ -1,8 +1,11 @@
 package systems
 
 import (
+	"fmt"
+
 	"github.com/kyriacos/2dgameengine/components"
 	"github.com/kyriacos/2dgameengine/core"
+	"github.com/kyriacos/2dgameengine/core/enums"
 	"github.com/kyriacos/2dgameengine/ecs"
 	"github.com/kyriacos/2dgameengine/global"
 	"github.com/veandco/go-sdl2/sdl"
@@ -42,22 +45,41 @@ func (s *CollisionSystem) Update(dt float64) {
 		destinationRectangle.Y = collider.Y - int32(s.Camera.Position.Y)
 
 		tag := s.checkEntityCollisions(e)
-		if tag == "enemy" {
+		if tag == enums.CollisionPlayerEnemy {
 			global.Running = false
+			fmt.Println("You lose!")
+		}
+		if tag == enums.CollisionPlayerLevelComplete {
+			global.Running = false
+			fmt.Println("You won!")
+			// next level
 		}
 	}
 }
 
-func (s *CollisionSystem) checkEntityCollisions(e *collisionEntity) string {
+func (s *CollisionSystem) checkEntityCollisions(e *collisionEntity) enums.CollisionType {
 	for _, otherEntity := range s.entities {
 		if e == otherEntity {
 			continue
 		}
-		if checkRectangleCollision(e.ColliderComponent.Collider, otherEntity.ColliderComponent.Collider) {
-			return otherEntity.ColliderComponent.Tag
+		a := e.ColliderComponent
+		b := otherEntity.ColliderComponent
+		if checkRectangleCollision(a.Collider, b.Collider) {
+			if a.Tag == enums.ColliderTagPlayer && b.Tag == enums.ColliderTagEnemy {
+				return enums.CollisionPlayerEnemy
+			}
+			if a.Tag == enums.ColliderTagPlayer && b.Tag == enums.ColliderTagProjectile {
+				return enums.CollisionPlayerProjectile
+			}
+			if a.Tag == enums.ColliderTagEnemy && b.Tag == enums.ColliderTagProjectile {
+				return enums.CollisionEnemyProjectile
+			}
+			if a.Tag == enums.ColliderTagPlayer && b.Tag == enums.ColliderTagLevelComplete {
+				return enums.CollisionPlayerLevelComplete
+			}
 		}
 	}
-	return ""
+	return enums.CollisionNo
 }
 
 func checkRectangleCollision(rectA, rectB *sdl.Rect) bool {

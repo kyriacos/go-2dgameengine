@@ -1,6 +1,7 @@
 package components
 
 import (
+	"github.com/kyriacos/2dgameengine/core/enums"
 	"github.com/kyriacos/2dgameengine/ecs"
 	"github.com/kyriacos/2dgameengine/vec"
 	"github.com/veandco/go-sdl2/sdl"
@@ -8,14 +9,14 @@ import (
 
 type ColliderComponent struct {
 	*ecs.Component
-	Tag                  string
+	Tag                  enums.ColliderTag
 	Collider             *sdl.Rect
 	SourceRectangle      *sdl.Rect
 	DestinationRectangle *sdl.Rect
 }
 
 func NewColliderComponent(
-	tag string,
+	tag enums.ColliderTag,
 	position vec.Vector2,
 	width, height int32,
 	owner ecs.IEntity) *ColliderComponent {

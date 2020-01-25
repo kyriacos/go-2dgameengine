@@ -51,6 +51,7 @@ func NewSpriteComponent(
 	am *core.AssetManager,
 	transform *TransformComponent,
 	textureId string,
+	isFixed bool,
 	owner ecs.IEntity,
 ) *SpriteComponent {
 
@@ -62,8 +63,8 @@ func NewSpriteComponent(
 		SourceRectangle:      &sdl.Rect{X: 0, Y: 0, W: int32(transform.Width), H: int32(transform.Height)},
 		DestinationRectangle: &sdl.Rect{},
 		SpriteFlip:           sdl.FLIP_NONE,
+		IsFixed:              isFixed,
 		IsAnimated:           false,
-		IsFixed:              false,
 	}
 }
 

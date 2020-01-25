@@ -3,6 +3,7 @@ package entities
 import (
 	"github.com/kyriacos/2dgameengine/components"
 	"github.com/kyriacos/2dgameengine/core"
+	"github.com/kyriacos/2dgameengine/core/enums"
 	"github.com/kyriacos/2dgameengine/ecs"
 	"github.com/kyriacos/2dgameengine/vec"
 )
@@ -22,7 +23,7 @@ func NewPlayerEntity(am *core.AssetManager) *PlayerEntity {
 	e.SpriteComponent = components.NewAnimatedSpriteComponent(am, e.TransformComponent, "player-image", 2, 90, true, false, e)
 	e.PlayerControlComponent = components.NewPlayerControlComponent(e.TransformComponent, e.SpriteComponent, e)
 	e.CameraComponent = components.NewCameraComponent(vec.Vector2{X: 0, Y: 0}, e)
-	e.ColliderComponent = components.NewColliderComponent("player", vec.Vector2{X: 240, Y: 106}, 32, 32, e)
+	e.ColliderComponent = components.NewColliderComponent(enums.ColliderTagPlayer, vec.Vector2{X: 240, Y: 106}, 32, 32, e)
 
 	return e
 }
