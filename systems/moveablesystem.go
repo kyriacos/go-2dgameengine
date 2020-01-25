@@ -20,6 +20,7 @@ func (s *MoveableSystem) Add(e *ecs.Entity, tc *components.TransformComponent) {
 		TransformComponent: tc,
 	})
 }
+
 func (s *MoveableSystem) Update(dt float64) {
 	for _, e := range s.entities {
 		t := e.TransformComponent

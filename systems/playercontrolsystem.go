@@ -2,6 +2,7 @@ package systems
 
 import (
 	"github.com/kyriacos/2dgameengine/components"
+	"github.com/kyriacos/2dgameengine/core/util"
 	"github.com/kyriacos/2dgameengine/ecs"
 	"github.com/kyriacos/2dgameengine/global"
 	"github.com/veandco/go-sdl2/sdl"
@@ -10,20 +11,20 @@ import (
 type keyboardEntity struct {
 	*ecs.Entity
 	*components.PlayerControlComponent
+	*components.TransformComponent
 }
 type PlayerControlSystem struct {
 	entities []*keyboardEntity
 }
 
-func (s *PlayerControlSystem) Add(e *ecs.Entity, kc *components.PlayerControlComponent) {
-	s.entities = append(s.entities, &keyboardEntity{Entity: e, PlayerControlComponent: kc})
+func (s *PlayerControlSystem) Add(e *ecs.Entity, tc *components.TransformComponent, kc *components.PlayerControlComponent) {
+	s.entities = append(s.entities, &keyboardEntity{Entity: e, TransformComponent: tc, PlayerControlComponent: kc})
 }
 
 func (s *PlayerControlSystem) Update(dt float64) {
-	clear() // clear the buffer
 	for _, e := range s.entities {
 		k := e.PlayerControlComponent
-		transform := k.TransformComponent
+		transform := e.TransformComponent
 		sprite := k.SpriteComponent
 
 		switch t := global.Event.(type) {
@@ -72,6 +73,14 @@ func (s *PlayerControlSystem) Update(dt float64) {
 			}
 
 		}
-	}
 
+		// Update position
+		change := transform.Velocity.Mul(float32(dt))
+		position := transform.Position.Add(change)
+
+		// Clamp so it doesn't go off the screen
+		position.X = float32(util.Clamp(int(position.X), 0, global.WindowWidth))
+		position.Y = float32(util.Clamp(int(position.Y), 0, global.WindowHeight))
+		transform.Position = position
+	}
 }
