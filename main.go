@@ -104,6 +104,7 @@ func setup() {
 	AManager.AddTexture("player-image", "./assets/images/chopper-spritesheet.png")    // player
 	AManager.AddTexture("radar-image", "./assets/images/radar-spritesheet.png")       // radar
 	AManager.AddTexture("helipad-image", "./assets/images/helipad.png")               // radar
+	AManager.AddTexture("projectile-image", "./assets/images/bullet-enemy.png")       // projectile
 	AManager.AddTexture("jungle-tile-texture", "./assets/tilemaps/jungle.png")        // tiles
 	AManager.AddTexture("collision-texture", "./assets/images/collision-texture.png") // collision bounding box texture
 	AManager.AddFont("charriot-font", "./assets/fonts/charriot.ttf", 12)              // Charriot Font
@@ -115,6 +116,9 @@ func setup() {
 	// tank entity
 	tank := entities.NewTankEntity(AManager)
 	EManager.AddEntity(tank, enums.EnemyLayer)
+	// projectile entity
+	projectile := entities.NewProjectileEntity(AManager)
+	EManager.AddEntity(projectile, enums.ProjectileLayer)
 	// player entity
 	player := entities.NewPlayerEntity(AManager)
 	EManager.AddEntity(player, enums.PlayerLayer)
@@ -139,9 +143,13 @@ func setup() {
 	moveableSystem := &systems.MoveableSystem{}
 	moveableSystem.Add(tank.Entity, tank.TransformComponent)
 	moveableSystem.Add(player.Entity, player.TransformComponent)
+	moveableSystem.Add(projectile.Entity, projectile.TransformComponent)
 
 	cameraSystem := &systems.CameraSystem{}
 	cameraSystem.Add(player.Entity, player.TransformComponent, player.CameraComponent)
+
+	projectileSystem := &systems.ProjectileSystem{EM: EManager}
+	projectileSystem.Add(projectile.Entity, projectile.TransformComponent, projectile.SpriteComponent, projectile.ColliderComponent, projectile.ProjectileEmitterComponent)
 
 	collisionSystem := &systems.CollisionSystem{Camera: player.CameraComponent, AManager: AManager}
 	collisionSystem.Add(player.Entity, player.TransformComponent, player.ColliderComponent)
@@ -158,6 +166,7 @@ func setup() {
 	World.AddSystem(moveableSystem)
 	World.AddSystem(pcSystem)
 	World.AddSystem(cameraSystem)
+	World.AddSystem(projectileSystem)
 	World.AddSystem(collisionSystem)
 	World.AddSystem(renderBaseSystem)
 	World.AddSystem(renderLayersSystem)

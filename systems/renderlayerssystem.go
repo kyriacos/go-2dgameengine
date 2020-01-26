@@ -33,6 +33,8 @@ func (r *RenderLayersSystem) Update(dt float64) {
 				render(e, r.Camera)
 			case enums.ObstacleLayer:
 				render(e, r.Camera)
+			case enums.ProjectileLayer:
+				render(e, r.Camera)
 			case enums.UILayer:
 				render(e, r.Camera)
 			default:
