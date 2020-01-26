@@ -44,6 +44,8 @@ func (r *RenderLayersSystem) Update(dt float64) {
 
 func render(e ecs.IEntity, camera *components.CameraComponent) {
 	switch s := e.RenderType().(type) {
+	case *components.TextLabelComponent:
+		core.DrawFont(s.Texture, s.Position)
 	case *components.TileComponent:
 		s.DestinationRectangle.X = int32(s.Position.X - camera.Position.X)
 		s.DestinationRectangle.Y = int32(s.Position.Y - camera.Position.Y)

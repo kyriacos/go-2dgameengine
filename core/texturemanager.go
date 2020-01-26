@@ -19,7 +19,7 @@ func LoadTexture(filename string) (*sdl.Texture, error) {
 		log.Fatalf("Could create texture from surface: %s", filename)
 		return nil, err
 	}
-	surface.Free()
+	defer surface.Free()
 
 	return texture, nil
 }

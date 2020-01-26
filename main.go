@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/veandco/go-sdl2/ttf"
 
 	"github.com/kyriacos/2dgameengine/core"
 	"github.com/kyriacos/2dgameengine/core/enums"
@@ -17,7 +18,9 @@ import (
 )
 
 var (
-	World *ecs.World
+	World    *ecs.World
+	AManager *core.AssetManager
+	EManager *core.EntityManager
 
 	showFPS = false
 )
@@ -25,6 +28,11 @@ var (
 func initSDL() (err error) {
 	if err = sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		fmt.Fprintf(os.Stderr, "Error initializing SDL: %s\n", err)
+		return err
+	}
+
+	if err = ttf.Init(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error initializing TTF: %s\n", err)
 		return err
 	}
 
@@ -78,42 +86,48 @@ func setup() {
 	// global.Renderer.Clear()
 
 	// Create Entity Manager
-	em := &core.EntityManager{
+	EManager := &core.EntityManager{
 		Entities:      make(map[uint64]ecs.IEntity),
 		LayerEntities: make(map[enums.LayerType][]ecs.IEntity),
 	}
 
 	// Create asset manager
-	am := &core.AssetManager{
-		EntityManager: em,
+	AManager := &core.AssetManager{
+		EntityManager: EManager,
 		Textures:      make(map[string]*sdl.Texture),
+		Fonts:         make(map[string]*ttf.Font),
 	}
 
 	// GAME - LOAD LEVEL
 	// level 0
-	am.AddTexture("tank-image", "./assets/images/tank-big-right.png")           // tank
-	am.AddTexture("player-image", "./assets/images/chopper-spritesheet.png")    // player
-	am.AddTexture("radar-image", "./assets/images/radar-spritesheet.png")       // radar
-	am.AddTexture("helipad-image", "./assets/images/helipad.png")               // radar
-	am.AddTexture("jungle-tile-texture", "./assets/tilemaps/jungle.png")        // tiles
-	am.AddTexture("collision-texture", "./assets/images/collision-texture.png") // collision bounding box texture
+	AManager.AddTexture("tank-image", "./assets/images/tank-big-right.png")           // tank
+	AManager.AddTexture("player-image", "./assets/images/chopper-spritesheet.png")    // player
+	AManager.AddTexture("radar-image", "./assets/images/radar-spritesheet.png")       // radar
+	AManager.AddTexture("helipad-image", "./assets/images/helipad.png")               // radar
+	AManager.AddTexture("jungle-tile-texture", "./assets/tilemaps/jungle.png")        // tiles
+	AManager.AddTexture("collision-texture", "./assets/images/collision-texture.png") // collision bounding box texture
+	AManager.AddFont("charriot-font", "./assets/fonts/charriot.ttf", 12)              // Charriot Font
 
 	// game map
-	gameMap := NewGameMap(em, am, "jungle-tile-texture", 2, 32)
+	gameMap := NewGameMap(EManager, AManager, "jungle-tile-texture", 2, 32)
 	gameMap.LoadMap("./assets/tilemaps/jungle.map", 25, 20)
 
 	// tank entity
-	tank := entities.NewTankEntity(am)
-	em.AddEntity(tank, enums.EnemyLayer)
+	tank := entities.NewTankEntity(AManager)
+	EManager.AddEntity(tank, enums.EnemyLayer)
 	// player entity
-	player := entities.NewPlayerEntity(am)
-	em.AddEntity(player, enums.PlayerLayer)
+	player := entities.NewPlayerEntity(AManager)
+	EManager.AddEntity(player, enums.PlayerLayer)
 	// radar entity
-	radar := entities.NewRadarEntity(am)
-	em.AddEntity(radar, enums.UILayer)
+	radar := entities.NewRadarEntity(AManager)
+	EManager.AddEntity(radar, enums.UILayer)
 	// level complete entity
-	helipad := entities.NewHelipadEntity(am)
-	em.AddEntity(helipad, enums.ObstacleLayer)
+	helipad := entities.NewHelipadEntity(AManager)
+	EManager.AddEntity(helipad, enums.ObstacleLayer)
+
+	// level name label
+	levelLabel := entities.NewTextLabelEntity(AManager, 10, 10, "Level 1...", "charriot-font", ColorWhite)
+	EManager.AddEntity(levelLabel, enums.UILayer)
 
 	// CREATE WORLD
 	World = &ecs.World{}
@@ -129,15 +143,15 @@ func setup() {
 	cameraSystem := &systems.CameraSystem{}
 	cameraSystem.Add(player.Entity, player.TransformComponent, player.CameraComponent)
 
-	collisionSystem := &systems.CollisionSystem{Camera: player.CameraComponent, AManager: am}
+	collisionSystem := &systems.CollisionSystem{Camera: player.CameraComponent, AManager: AManager}
 	collisionSystem.Add(player.Entity, player.TransformComponent, player.ColliderComponent)
 	collisionSystem.Add(tank.Entity, tank.TransformComponent, tank.ColliderComponent)
 	collisionSystem.Add(helipad.Entity, helipad.TransformComponent, helipad.ColliderComponent)
 
 	renderBaseSystem := &systems.RenderBase{}
-	renderLayersSystem := &systems.RenderLayersSystem{EM: em, Camera: player.CameraComponent}
+	renderLayersSystem := &systems.RenderLayersSystem{EM: EManager, Camera: player.CameraComponent}
 
-	renderDebugSystem := &systems.RenderDebugSystem{AManager: am}
+	renderDebugSystem := &systems.RenderDebugSystem{AManager: AManager}
 	renderDebugSystem.Add(player.Entity, player.ColliderComponent)
 	renderDebugSystem.Add(tank.Entity, tank.ColliderComponent)
 
@@ -160,7 +174,9 @@ func render() {
 }
 
 func destroy() {
+	// AManager.ClearData()
 	defer sdl.Quit()
+	defer ttf.Quit()
 	defer global.Window.Destroy()
 	defer global.Renderer.Destroy()
 }
