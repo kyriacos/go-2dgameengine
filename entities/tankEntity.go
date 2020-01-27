@@ -10,9 +10,9 @@ import (
 
 type TankEntity struct {
 	*ecs.Entity
-	*components.TransformComponent
-	*components.SpriteComponent
-	*components.ColliderComponent
+	*components.TransformComponent `json:"TransformComponent"`
+	*components.SpriteComponent    `json:"SpriteComponent"`
+	*components.ColliderComponent  `json:"ColliderComponent"`
 }
 
 func NewTankEntity(am *core.AssetManager) *TankEntity {

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"math"
@@ -155,6 +157,7 @@ func setup() {
 	collisionSystem.Add(player.Entity, player.TransformComponent, player.ColliderComponent)
 	collisionSystem.Add(tank.Entity, tank.TransformComponent, tank.ColliderComponent)
 	collisionSystem.Add(helipad.Entity, helipad.TransformComponent, helipad.ColliderComponent)
+	collisionSystem.Add(projectile.Entity, projectile.TransformComponent, projectile.ColliderComponent)
 
 	renderBaseSystem := &systems.RenderBase{}
 	renderLayersSystem := &systems.RenderLayersSystem{EM: EManager, Camera: player.CameraComponent}
@@ -171,6 +174,33 @@ func setup() {
 	World.AddSystem(renderBaseSystem)
 	World.AddSystem(renderLayersSystem)
 	World.AddSystem(renderDebugSystem)
+
+	// So marshalling and unmrshalling
+	// if i use the entitymanager for this i need to create a custom marshal method and unmarshal
+	// since i store the interface type and not the concrete type for the object.
+	// that way when unmarshalling it should create the right entity with the right values...
+	// hopefully
+	var buf bytes.Buffer
+	body, _ := json.Marshal(EManager)
+	buf.Write(body)
+	// fmt.Println(buf.String())
+
+	// blob := buf.String()
+	// blob := []byte(`
+	// 	{"Entity":{"IDx":504},"TransformComponent":{"Position":{"X":720,"Y":15},"Velocity":{"X":0,"Y":0},"Width":64,"Height":64,"Scale":1},"SpriteComponent":{"Texture":{},"SourceRectangle":{"X":0,"Y":0,"W":64,"H":64},"DestinationRectangle":{"X":0,"Y":0,"W":0,"H":0},"TransformComponent":{"Position":{"X":720,"Y":15},"Velocity":{"X":0,"Y":0},"Width":64,"Height":64,"Scale":1},"SpriteFlip":0,"IsAnimated":true,"IsFixed":true,"NumFrames":8,"AnimationSpeed":150,"Animations":{"SingleAnimation":{}},"AnimationIndex":0,"CurrentAnimationName":"SingleAnimation"}}
+	// `)
+	// te := entities.RadarEntity{}
+	// json.Unmarshal(blob, &te)
+	// fmt.Printf("%+v", te)
+
+	em := core.EntityManager{}
+	json.Unmarshal(buf.Bytes(), &em)
+	fmt.Printf("%+v", em)
+
+	// 	var res map[string]interface{}
+	// )	json.Unmarshal(blob, &res)
+
+	// 	fmt.Printf("%+v", res["Entity"]
 }
 
 func update(deltaTime float64) {

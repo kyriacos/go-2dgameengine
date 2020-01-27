@@ -14,11 +14,11 @@ type IEntity interface {
 }
 
 type Entity struct {
-	id uint64
+	IDx uint64
 }
 
 func (e *Entity) ID() uint64 {
-	return e.id
+	return e.IDx
 }
 
 func (e *Entity) RenderType() Renderable {
@@ -28,7 +28,7 @@ func (e *Entity) RenderType() Renderable {
 // func (e *Entity) GetComponent(c *Component)
 
 func NewEntity() *Entity {
-	return &Entity{id: atomic.AddUint64(&_id, 1)}
+	return &Entity{IDx: atomic.AddUint64(&_id, 1)}
 }
 
 // // Add Component to Entity's component list

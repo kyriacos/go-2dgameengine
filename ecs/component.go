@@ -1,7 +1,7 @@
 package ecs
 
 type Component struct {
-	Owner IEntity
+	Owner IEntity `json:"-"`
 }
 
 func NewBaseComponent(o IEntity) *Component {

@@ -28,7 +28,7 @@ func NewProjectileEntity(am *core.AssetManager) *ProjectileEntity {
 	e.SpriteComponent = components.NewSpriteComponent(
 		am, e.TransformComponent, "projectile-image", false, e)
 	e.ColliderComponent = components.NewColliderComponent(
-		enums.ColliderTagLevelComplete, vec.Vector2{X: 150 + 16, Y: 495 + 16}, 32, 32, e)
+		enums.ColliderTagProjectile, vec.Vector2{X: 150 + 16, Y: 495 + 16}, 32, 32, e)
 	e.ProjectileEmitterComponent = components.NewProjectileEmitterComponent(
 		vec.Vector2{X: 150 + 16, Y: 495 + 16}, 50, 200, 270, true, e)
 

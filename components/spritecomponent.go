@@ -13,7 +13,7 @@ type Animation struct {
 }
 
 type SpriteComponent struct {
-	ecs.Component
+	*ecs.Component
 	Texture              *sdl.Texture
 	SourceRectangle      *sdl.Rect
 	DestinationRectangle *sdl.Rect
@@ -58,6 +58,7 @@ func NewSpriteComponent(
 	texture := am.GetTexture(textureId)
 
 	return &SpriteComponent{
+		Component:            ecs.NewBaseComponent(owner),
 		Texture:              texture,
 		TransformComponent:   transform,
 		SourceRectangle:      &sdl.Rect{X: 0, Y: 0, W: int32(transform.Width), H: int32(transform.Height)},
@@ -81,6 +82,7 @@ func NewAnimatedSpriteComponent(
 
 	texture := am.GetTexture(textureID)
 	c := &SpriteComponent{
+		Component:            ecs.NewBaseComponent(owner),
 		Texture:              texture,
 		TransformComponent:   transform,
 		SourceRectangle:      &sdl.Rect{X: 0, Y: 0, W: int32(transform.Width), H: int32(transform.Height)},

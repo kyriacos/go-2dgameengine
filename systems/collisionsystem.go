@@ -49,6 +49,10 @@ func (s *CollisionSystem) Update(dt float64) {
 			global.Running = false
 			fmt.Println("You lose!")
 		}
+		if tag == enums.CollisionPlayerProjectile {
+			global.Running = false
+			fmt.Println("You lose!")
+		}
 		if tag == enums.CollisionPlayerLevelComplete {
 			global.Running = false
 			fmt.Println("You won!")
