@@ -1,13 +1,20 @@
 package ecs
 
-type Component struct {
-	Owner IEntity
+type ComponentBitMask uint64
+type ComponentType uint64
+
+const (
+	NoComponents ComponentType = iota
+
+	NumComponentTypes uint64 = iota
+)
+
+type IComponent interface {
+	Type() ComponentType
 }
 
-func NewBaseComponent(o IEntity) *Component {
-	return &Component{Owner: o}
-}
+// type Component struct {}
 
-// func (c *Component) Owner() *IEntity {
-// 	return c.Owner
+// func NewBaseComponent() *Component {
+// 	return &Component{}
 // }
