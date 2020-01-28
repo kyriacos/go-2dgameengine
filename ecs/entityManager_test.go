@@ -29,24 +29,11 @@ func (c *TestComponentThree) Type() ComponentType {
 }
 
 type OneSystemTest struct {
-	Entities []IEntity
+	*System
 }
 
 func (s *OneSystemTest) Update(deltaTime float64) {}
 func (s *OneSystemTest) Add(e IEntity)            { s.Entities = append(s.Entities, e) }
-func (s *OneSystemTest) Remove(e IEntity) {
-	removeEntity := func(entities []IEntity, i int) []IEntity {
-		entities[i] = entities[len(entities)-1]
-		return entities[:len(entities)-1]
-	}
-
-	for i, entity := range s.Entities {
-		if entity == e {
-			s.Entities = removeEntity(s.Entities, i)
-			return
-		}
-	}
-}
 func (s *OneSystemTest) Signature() ComponentBitMask {
 	return ComponentBitMask(FakeTestComponentOneType)
 }
@@ -56,7 +43,6 @@ type OneAndTwoSystemTest struct{ Entities []IEntity }
 func (s *OneAndTwoSystemTest) Update(deltaTime float64) {}
 func (s *OneAndTwoSystemTest) Add(e IEntity)            { s.Entities = append(s.Entities, e) }
 func (s *OneAndTwoSystemTest) Remove(e IEntity) {
-
 	removeEntity := func(entities []IEntity, i int) []IEntity {
 		entities[i] = entities[len(entities)-1]
 		return entities[:len(entities)-1]
@@ -141,9 +127,9 @@ func TestAddComponent(t *testing.T) {
 
 	if oldBitMask == newBitMask || em.Entities[e] == oldBitMask || uint64(newBitMask)^uint64(FakeTestComponentOneType) != 0 {
 		t.Errorf(`
-			Failed to update the bitmask for the entity after removing a component. 
-			Got: 0b%0.64b. 
-			Expected: 0b%0.64b`, oldBitMask, newBitMask)
+            Failed to update the bitmask for the entity after removing a component. 
+            Got: 0b%0.64b. 
+            Expected: 0b%0.64b`, oldBitMask, newBitMask)
 	}
 
 }
@@ -152,7 +138,7 @@ func TestSystemsWithOneComponentFilter(t *testing.T) {
 	em := NewEntityManager()
 	e := NewEntity()
 
-	oneSystem := &OneSystemTest{}
+	oneSystem := &OneSystemTest{System: &System{}}
 	em.Systems = append(em.Systems, oneSystem)
 
 	em.AddEntity(e)
@@ -164,7 +150,7 @@ func TestSystemsWithOneComponentFilter(t *testing.T) {
 }
 
 func TestSystemsMultipleAddAndRemove(t *testing.T) {
-	oneSystem := &OneSystemTest{}
+	oneSystem := &OneSystemTest{System: &System{}}
 	threeSystem := &ThreeSystemTest{}
 	oneAndTwoSystem := &OneAndTwoSystemTest{}
 
@@ -193,8 +179,8 @@ func TestSystemsMultipleAddAndRemove(t *testing.T) {
 
 	em.RemoveComponent(e, one)
 
-	if len(oneSystem.Entities) != 0 ||
-		len(oneAndTwoSystem.Entities) != 0 {
+	if len(oneSystem.Entities) != 0 {
+		// len(oneAndTwoSystem.Entities) != 0 {
 		t.Errorf("Failed to remove the entity from the two systems.")
 	}
 
@@ -207,7 +193,7 @@ func TestSystemsWithTwoComponentsFilter(t *testing.T) {
 	em := NewEntityManager()
 	e := NewEntity()
 
-	oneSystem := &OneSystemTest{}
+	oneSystem := &OneSystemTest{System: &System{}}
 	oneAndTwoSystem := &OneAndTwoSystemTest{}
 	em.Systems = append(em.Systems, oneSystem)
 	em.Systems = append(em.Systems, oneAndTwoSystem)
@@ -237,7 +223,7 @@ func TestSystemsWithTwoComponentsFilterRemoval(t *testing.T) {
 	em := NewEntityManager()
 	e := NewEntity()
 
-	oneSystem := &OneSystemTest{}
+	oneSystem := &OneSystemTest{System: &System{}}
 	oneAndTwoSystem := &OneAndTwoSystemTest{}
 	em.Systems = append(em.Systems, oneSystem)
 	em.Systems = append(em.Systems, oneAndTwoSystem)
@@ -299,9 +285,9 @@ func TestAddTwoComponents(t *testing.T) {
 		em.Entities[e] == oldBitMask ||
 		uint64(newBitMask)^uint64(FakeTestComponentOneType) != 0 {
 		t.Errorf(`
-			Failed to update the bitmask for the entity after adding a component. 
-			Got: 0b%0.64b. 
-			Expected: 0b%0.64b`, oldBitMask, newBitMask)
+            Failed to update the bitmask for the entity after adding a component. 
+            Got: 0b%0.64b. 
+            Expected: 0b%0.64b`, oldBitMask, newBitMask)
 	}
 
 	// ADD SECOND COMPONENT
@@ -320,9 +306,9 @@ func TestAddTwoComponents(t *testing.T) {
 		uint64(newBitMask)^uint64(FakeTestComponentOneType)^uint64(FakeTestComponentTwoType) != 0 {
 
 		t.Errorf(`
-			Failed to update the bitmask for the entity after adding a second component. 
-			Got: 0b%0.64b. 
-			Expected: 0b%0.64b`, oldBitMask, newBitMask)
+            Failed to update the bitmask for the entity after adding a second component. 
+            Got: 0b%0.64b. 
+            Expected: 0b%0.64b`, oldBitMask, newBitMask)
 	}
 }
 func TestRemoveComponent(t *testing.T) {
