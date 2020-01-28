@@ -46,23 +46,33 @@ func (em *EntityManager) GetEntityComponentBitMask(e Entity) ComponentBitMask {
 }
 
 func (em *EntityManager) AddComponent(e Entity, c IComponent) {
-	currentSignature := em.Entities[e]
-	newSignature := currentSignature | ComponentBitMask(c.Type())
+	oldSignature := em.Entities[e]
+	newSignature := oldSignature | ComponentBitMask(c.Type())
 
 	// add to entity components
 	em.Entities[e] = newSignature
 	em.EntityComponents[e][c.Type()] = c
 
 	// loop thourgh all systems that have that signature and add the entity to them
+	for _, s := range em.Systems {
+		if oldSignature&s.Signature() != s.Signature() && newSignature&s.Signature() == s.Signature() {
+			s.Add(e) // add the entity or the components the system expects?
+		}
+	}
 
 }
 
 func (em *EntityManager) RemoveComponent(e Entity, c IComponent) {
-	currentSignature := em.Entities[e]
-	newSignature := currentSignature ^ ComponentBitMask(c.Type()) // flip the bit to 0
+	oldSignature := em.Entities[e]
+	newSignature := oldSignature ^ ComponentBitMask(c.Type()) // flip the bit to 0
 
 	// loop thourgh all systems that have the current signature mask and not the new one
 	// if they had the current and the new one does not apply remove the entity
+	for _, s := range em.Systems {
+		if oldSignature&s.Signature() == s.Signature() && newSignature&s.Signature() != s.Signature() {
+			s.Remove(e) // remove the entity from the system
+		}
+	}
 
 	// update the signature
 	em.Entities[e] = newSignature

@@ -6,6 +6,94 @@ import (
 	. "github.com/kyriacos/2dgameengine/ecs"
 )
 
+const FakeTestComponentOneType ComponentType = 1 << 1
+const FakeTestComponentTwoType ComponentType = 1 << 2
+const FakeTestComponentThreeType ComponentType = 1 << 3
+
+type TestComponentOne struct{}
+
+func (c *TestComponentOne) Type() ComponentType {
+	return FakeTestComponentOneType
+}
+
+type TestComponentTwo struct{}
+
+func (c *TestComponentTwo) Type() ComponentType {
+	return FakeTestComponentTwoType
+}
+
+type TestComponentThree struct{}
+
+func (c *TestComponentThree) Type() ComponentType {
+	return FakeTestComponentThreeType
+}
+
+type OneSystemTest struct {
+	Entities []IEntity
+}
+
+func (s *OneSystemTest) Update(deltaTime float64) {}
+func (s *OneSystemTest) Add(e IEntity)            { s.Entities = append(s.Entities, e) }
+func (s *OneSystemTest) Remove(e IEntity) {
+	removeEntity := func(entities []IEntity, i int) []IEntity {
+		entities[i] = entities[len(entities)-1]
+		return entities[:len(entities)-1]
+	}
+
+	for i, entity := range s.Entities {
+		if entity == e {
+			s.Entities = removeEntity(s.Entities, i)
+			return
+		}
+	}
+}
+func (s *OneSystemTest) Signature() ComponentBitMask {
+	return ComponentBitMask(FakeTestComponentOneType)
+}
+
+type OneAndTwoSystemTest struct{ Entities []IEntity }
+
+func (s *OneAndTwoSystemTest) Update(deltaTime float64) {}
+func (s *OneAndTwoSystemTest) Add(e IEntity)            { s.Entities = append(s.Entities, e) }
+func (s *OneAndTwoSystemTest) Remove(e IEntity) {
+
+	removeEntity := func(entities []IEntity, i int) []IEntity {
+		entities[i] = entities[len(entities)-1]
+		return entities[:len(entities)-1]
+	}
+
+	for i, entity := range s.Entities {
+		if entity == e {
+			s.Entities = removeEntity(s.Entities, i)
+			return
+		}
+	}
+}
+func (s *OneAndTwoSystemTest) Signature() ComponentBitMask {
+	return ComponentBitMask(FakeTestComponentOneType | FakeTestComponentTwoType)
+}
+
+type ThreeSystemTest struct{ Entities []IEntity }
+
+func (s *ThreeSystemTest) Update(deltaTime float64) {}
+func (s *ThreeSystemTest) Add(e IEntity)            { s.Entities = append(s.Entities, e) }
+func (s *ThreeSystemTest) Remove(e IEntity) {
+	removeEntity := func(entities []IEntity, i int) []IEntity {
+		entities[i] = entities[len(entities)-1]
+		return entities[:len(entities)-1]
+	}
+
+	for i, entity := range s.Entities {
+		if entity == e {
+			s.Entities = removeEntity(s.Entities, i)
+			return
+		}
+	}
+}
+func (s *ThreeSystemTest) Signature() ComponentBitMask {
+	return ComponentBitMask(FakeTestComponentThreeType)
+}
+
 func TestNewEntityManager(t *testing.T) {
 	em := NewEntityManager()
 	if em.Systems == nil || em.Entities == nil || em.EntityComponents == nil {
@@ -33,21 +121,6 @@ func TestAddEntity(t *testing.T) {
 	}
 }
 
-const FakeTestComponentOneType ComponentType = 1
-const FakeTestComponentTwoType ComponentType = 2
-
-type TestComponentOne struct{}
-
-func (c *TestComponentOne) Type() ComponentType {
-	return FakeTestComponentOneType
-}
-
-type TestComponentTwo struct{}
-
-func (c *TestComponentTwo) Type() ComponentType {
-	return FakeTestComponentTwoType
-}
-
 func TestAddComponent(t *testing.T) {
 	em := NewEntityManager()
 	e := NewEntity()
@@ -71,6 +144,132 @@ func TestAddComponent(t *testing.T) {
 			Failed to update the bitmask for the entity after removing a component. 
 			Got: 0b%0.64b. 
 			Expected: 0b%0.64b`, oldBitMask, newBitMask)
+	}
+
+}
+
+func TestSystemsWithOneComponentFilter(t *testing.T) {
+	em := NewEntityManager()
+	e := NewEntity()
+
+	oneSystem := &OneSystemTest{}
+	em.Systems = append(em.Systems, oneSystem)
+
+	em.AddEntity(e)
+	em.AddComponent(e, &TestComponentOne{})
+
+	if len(oneSystem.Entities) == 0 || oneSystem.Entities[0] != e {
+		t.Errorf("Failed to add entity to the correct system.")
+	}
+}
+
+func TestSystemsMultipleAddAndRemove(t *testing.T) {
+	oneSystem := &OneSystemTest{}
+	threeSystem := &ThreeSystemTest{}
+	oneAndTwoSystem := &OneAndTwoSystemTest{}
+
+	em := NewEntityManager()
+	em.Systems = append(em.Systems, oneSystem)
+	em.Systems = append(em.Systems, threeSystem)
+	em.Systems = append(em.Systems, oneAndTwoSystem)
+
+	e := NewEntity()
+	em.AddEntity(e)
+	one := &TestComponentOne{}
+	two := &TestComponentTwo{}
+	three := &TestComponentThree{}
+
+	// add one more entity a different two components but one is different
+	em.AddComponent(e, one)
+	em.AddComponent(e, two)
+	em.AddComponent(e, three)
+
+	if len(oneSystem.Entities) != 1 ||
+		len(oneAndTwoSystem.Entities) != 1 ||
+		len(threeSystem.Entities) != 1 {
+
+		t.Errorf("Wrong number of entities found in the systems")
+	}
+
+	em.RemoveComponent(e, one)
+
+	if len(oneSystem.Entities) != 0 ||
+		len(oneAndTwoSystem.Entities) != 0 {
+		t.Errorf("Failed to remove the entity from the two systems.")
+	}
+
+	if len(threeSystem.Entities) != 1 {
+		t.Errorf("Entity was removed from a system that it shouldn't have been removed from.")
+	}
+}
+
+func TestSystemsWithTwoComponentsFilter(t *testing.T) {
+	em := NewEntityManager()
+	e := NewEntity()
+
+	oneSystem := &OneSystemTest{}
+	oneAndTwoSystem := &OneAndTwoSystemTest{}
+	em.Systems = append(em.Systems, oneSystem)
+	em.Systems = append(em.Systems, oneAndTwoSystem)
+
+	em.AddEntity(e)
+	one := &TestComponentOne{}
+	two := &TestComponentTwo{}
+
+	em.AddComponent(e, one)
+
+	if len(oneSystem.Entities) != 1 || oneSystem.Entities[0] != e {
+		t.Errorf("Failed to add entity to the correct system.")
+	}
+
+	em.AddComponent(e, two)
+
+	if len(oneSystem.Entities) != 1 {
+		t.Errorf("Entity was added twice to the same system!")
+	}
+
+	if len(oneAndTwoSystem.Entities) != 1 || oneAndTwoSystem.Entities[0] != e {
+		t.Errorf("Failed to add entity to the second system.")
+	}
+}
+
+func TestSystemsWithTwoComponentsFilterRemoval(t *testing.T) {
+	em := NewEntityManager()
+	e := NewEntity()
+
+	oneSystem := &OneSystemTest{}
+	oneAndTwoSystem := &OneAndTwoSystemTest{}
+	em.Systems = append(em.Systems, oneSystem)
+	em.Systems = append(em.Systems, oneAndTwoSystem)
+
+	em.AddEntity(e)
+	one := &TestComponentOne{}
+	two := &TestComponentTwo{}
+
+	em.AddComponent(e, one)
+
+	if len(oneSystem.Entities) != 1 || oneSystem.Entities[0] != e {
+		t.Errorf("Failed to add entity to the correct system.")
+	}
+
+	em.AddComponent(e, two)
+
+	if len(oneSystem.Entities) != 1 {
+		t.Errorf("Entity was added twice to the same system!")
+	}
+
+	if len(oneAndTwoSystem.Entities) != 1 || oneAndTwoSystem.Entities[0] != e {
+		t.Errorf("Failed to add entity to the second system.")
+	}
+
+	em.RemoveComponent(e, one)
+
+	if len(oneAndTwoSystem.Entities) != 0 {
+		t.Errorf("Failed to remove the entity from the second system.")
+	}
+
+	if len(oneSystem.Entities) != 0 {
+		t.Errorf("Failed to remove the entity from the first system.")
 	}
 }
 
