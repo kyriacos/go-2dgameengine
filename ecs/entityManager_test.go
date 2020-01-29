@@ -6,23 +6,23 @@ import (
 	. "github.com/kyriacos/2dgameengine/ecs"
 )
 
-const FakeTestComponentOneType ComponentType = 1 << 1
-const FakeTestComponentTwoType ComponentType = 1 << 2
-const FakeTestComponentThreeType ComponentType = 1 << 3
+const FakeTestComponentOneType ComponentType = 1 << 0
+const FakeTestComponentTwoType ComponentType = 1 << 1
+const FakeTestComponentThreeType ComponentType = 1 << 2
 
-type TestComponentOne struct{}
+type TestComponentOne struct{ Name string }
 
 func (c *TestComponentOne) Type() ComponentType {
 	return FakeTestComponentOneType
 }
 
-type TestComponentTwo struct{}
+type TestComponentTwo struct{ Name string }
 
 func (c *TestComponentTwo) Type() ComponentType {
 	return FakeTestComponentTwoType
 }
 
-type TestComponentThree struct{}
+type TestComponentThree struct{ Name string }
 
 func (c *TestComponentThree) Type() ComponentType {
 	return FakeTestComponentThreeType
@@ -107,6 +107,25 @@ func TestAddEntity(t *testing.T) {
 	}
 }
 
+func TestRemoveEntity(t *testing.T) {
+	em := NewEntityManager()
+	e := NewEntity()
+	testComp := &TestComponentOne{}
+
+	oneSystem := &OneSystemTest{System: &System{}}
+	em.Systems = append(em.Systems, oneSystem)
+	em.AddEntity(e)
+	em.AddComponent(e, testComp)
+
+	em.RemoveEntity(e)
+	if len(em.Entities) != 0 {
+		t.Errorf("Failed to remove the entity from the entity manager!")
+	}
+	if len(oneSystem.Entities) != 0 {
+		t.Errorf("Failed to remove the entity from the system!")
+	}
+}
+
 func TestAddComponent(t *testing.T) {
 	em := NewEntityManager()
 	e := NewEntity()
@@ -125,11 +144,59 @@ func TestAddComponent(t *testing.T) {
 		t.Errorf("Failed to add component for entity")
 	}
 
-	if oldBitMask == newBitMask || em.Entities[e] == oldBitMask || uint64(newBitMask)^uint64(FakeTestComponentOneType) != 0 {
+	if oldBitMask == newBitMask ||
+		em.Entities[e] == oldBitMask ||
+		uint64(newBitMask)^uint64(FakeTestComponentOneType) != 0 {
+
 		t.Errorf(`
             Failed to update the bitmask for the entity after removing a component. 
-            Got: 0b%0.64b. 
-            Expected: 0b%0.64b`, oldBitMask, newBitMask)
+            Got:	0b%0.64b. 
+            Expected:	0b%0.64b`, oldBitMask, newBitMask)
+	}
+
+}
+
+func TestAddComponentVariadic(t *testing.T) {
+	em := NewEntityManager()
+	e := NewEntity()
+
+	em.AddEntity(e)
+
+	if len(em.EntityComponents[e]) > 0 {
+		t.Errorf("The components should be empty!")
+	}
+
+	one := &TestComponentOne{Name: "ComponentOne"}
+	two := &TestComponentTwo{Name: "ComponentTwo"}
+
+	oldBitMask := em.GetEntityComponentBitMask(e)
+	em.AddComponent(e, one, two)
+	newBitMask := em.GetEntityComponentBitMask(e)
+
+	if len(em.EntityComponents[e]) == 0 {
+		t.Errorf("Entity components are empty!")
+	}
+
+	comp := em.EntityComponents[e][FakeTestComponentOneType]
+	if comp != one {
+		t.Errorf("Entity component for type %d is %s does not match the expected component %s",
+			FakeTestComponentOneType, comp, one)
+	}
+
+	comp = em.EntityComponents[e][FakeTestComponentTwoType]
+	if comp != two {
+		t.Errorf("Entity component for type %d is %s does not match the expected component %s",
+			FakeTestComponentTwoType, comp, two)
+	}
+
+	expectedBitMask := FakeTestComponentOneType | FakeTestComponentTwoType
+	if oldBitMask == newBitMask ||
+		em.Entities[e] == oldBitMask ||
+		newBitMask != ComponentBitMask(expectedBitMask) {
+		t.Errorf(`
+            Failed to update the bitmask for the entity after adding the components. 
+            Got:	0b%0.64b. 
+            Expected:	0b%0.64b`, oldBitMask, newBitMask)
 	}
 
 }

@@ -2,13 +2,14 @@ package ecs
 
 type ISystem interface {
 	Update(deltaTime float64)
-	Add(IEntity) // ADD(IEntity, componentsItNeeds IComponent...)
+	Add(IEntity)
 	Remove(IEntity)
 	Signature() ComponentBitMask
 }
 
 type System struct {
 	Entities []IEntity
+	// Entities map[IEntity]map[ComponentType]IComponent
 }
 
 func (s *System) Remove(e IEntity) {

@@ -15,7 +15,7 @@ type IEntity interface {
 
 type Entity uint64
 
-// func (e *Entity) ID() uint64 {
+// func (e Entity) ID() uint64 {
 // 	return e
 // }
 
